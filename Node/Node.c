@@ -21,7 +21,7 @@ void nodeFree(Node* node){
 
 /// удаляет данное дерево и все его поддеревья
 void nodeClear(Node* node){
-
+    //FIXME
 }
 
 void nodePushMessage(FILE* output, Node* node){

@@ -8,6 +8,7 @@
 
 #define SKIP_BRACES while(line[*ptrPos] == ' ' || line[*ptrPos] == '\t' || line[*ptrPos] == '\n') (*ptrPos)++
 #define REQURE(symbol) (line[*ptrPos] == symbol)
+#define ISDIGIT (isdigit(line[*ptrPos]))
 
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
 Node* expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg);
@@ -183,7 +184,6 @@ Node* expr_sin_cos(const int line[], unsigned *ptrPos){
 #define MAXOP 100
 
 Node* expr_other(const int line[], unsigned *ptrPos) {
-    //int op[ MAXOP ];  //FIXME
     SKIP_BRACES;
     if(REQURE('(')){
         (*ptrPos)++;
@@ -197,7 +197,7 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
             printf("error no brace, pos: %d\n", *ptrPos);
         }
     }
-    else if(isdigit(line[*ptrPos])){ //digit    //пока трахаюсь только с целыми
+    else if(ISDIGIT){ //пока трахаюсь только с целыми //FIXME
 
         Node* numNode = nodeInit();
         numNode->type = Num;
@@ -205,12 +205,12 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
         unsigned value = 0;
         do
             value = value * 10 + line[(*ptrPos)++] - '0';
-        while(isdigit(line[*ptrPos]));
+        while(ISDIGIT);
 
         numNode->value = value;
         return numNode;
     }
-    else if(line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z' && line[*ptrPos]){ //var
+    else if(line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z'){ //var
 
     }
 
