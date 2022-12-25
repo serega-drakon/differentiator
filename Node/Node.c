@@ -5,6 +5,7 @@
 #include <assert.h>
 
 Node* nodeInit(){
+
     Node* node = malloc(sizeof(Node));
     node->type = Empty;
     node->value = 0; //FIXME: тут токо целые пока
@@ -17,6 +18,7 @@ Node* nodeInit(){
 
 /// удаляет один узел дерева
 void nodeFree(Node* node){
+
     free(node->ptrValue);
     free(node);
 }

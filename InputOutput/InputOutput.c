@@ -24,6 +24,7 @@ int getlineCMD(int input[], unsigned maxLen){
 }
 
 void fprintIntS(FILE* output, int str[]){
+
     for(int i = 0; str[i] != '\0'; i++)
         putc(str[i], output);
 }

@@ -16,7 +16,7 @@
  || (line[*ptrPos] >= 'A' && line[*ptrPos] <= 'Z') || line[*ptrPos] == '_')
 
 #define RET_ERROR_NODE    do{   \
-printf("error by the sybmol \"%c\" at pos %d\n", line[*ptrPos], *ptrPos);\
+printf("expr: error by the sybmol \"%c\" at pos %d\n", line[*ptrPos], *ptrPos);\
 Node* errorNode = nodeInit();   \
 errorNode->type = Error;        \
 return errorNode;} while(0)
