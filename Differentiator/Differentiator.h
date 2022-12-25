@@ -3,6 +3,6 @@
 
 #include "../Node/Node.h"
 
-Node* expr(const int inputLine[]);
+Node* expr(const int inputLine[], unsigned sizeOfLine);
 
 #endif //DIFFERENTIATOR_DIFFERENTIATOR_H

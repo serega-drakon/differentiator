@@ -3,16 +3,17 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "Differentiator.h"
 #include "../InputOutput/InputOutput.h"
 
-#define SKIP_BRACES while(line[*ptrPos] == ' ' || line[*ptrPos] == '\t' || line[*ptrPos] == '\n') (*ptrPos)++
-#define REQURE(symbol) (line[*ptrPos] == symbol)
+#define REQUIRE(symbol) (line[*ptrPos] == symbol)
 #define ISDIGIT (isdigit(line[*ptrPos]))
+#define ISCHAR ((line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z') || (line[*ptrPos] >= 'A' && line[*ptrPos] <= 'Z') || line[*ptrPos] == '_')
 
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
 Node* expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg);
-Node* expr_unaryPlus(const int line[], unsigned *ptrPos);
+Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos);
 Node* expr_mul(const int line[], unsigned *ptrPos);
 Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_div(const int line[], unsigned *ptrPos);
@@ -22,23 +23,54 @@ Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_sin_cos(const int line[], unsigned *ptrPos);
 Node* expr_other(const int line[], unsigned *ptrPos);
 
+///подразумеваю, что clearedline достаточно длинная
+int exprLineCheck(int cleared[], const int source[]){
 
-Node* expr(const int inputLine[]){
-    //FIXME: проверка на скобки
-    const int* line = inputLine;
+    int countOfDisclosed = 0;
+    int j = 0;
+
+    for(unsigned i = 0; source[i] != '\0'; i++){
+        if(source[i] == '(')
+            countOfDisclosed++;
+        else if(source[i] == ')')
+            countOfDisclosed--;
+        if(source[i] != ' ' && source[i] != '\t' && source[i] != '\n')
+            cleared[j++] = source[i];
+    }
+    cleared[j] = '\0';
+
+    return countOfDisclosed;
+}
+
+Node* expr(const int inputLine[], unsigned sizeOfline){
+
+    int* line = malloc(sizeof(int) * sizeOfline);
     unsigned pos = 0;
-    return expr_sum_sub(line, &pos);
+    Node* result;
+
+    if(!exprLineCheck(line, inputLine)) {
+        result = expr_sum_sub(line, &pos);
+        free(line);
+    }
+    else {
+        printf("syntax error: there are unclosed braces.\n");
+        result = nodeInit();
+        result->type = Error;
+    }
+    return result;
 }
 
 Node *expr_sum_sub(const int line[], unsigned *ptrPos) {
-    SKIP_BRACES;
-    Node* firstArg = expr_unaryPlus(line, ptrPos);
+    assert(line != NULL);
+
+    Node* firstArg = expr_unaryPlusMinus(line, ptrPos);
     return expr_sum_sub_(line, ptrPos, firstArg);
 }
 
 Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
-    SKIP_BRACES;
-    if(REQURE('+')){
+    assert(firstArg != NULL);
+
+    if(REQUIRE('+')){
         (*ptrPos)++;
         Node* sumNode = nodeInit();
         sumNode->type = Sum;
@@ -49,7 +81,7 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
         secondArg->prev = sumNode;
         return expr_sum_sub_(line, ptrPos, sumNode);
     }
-    else if(REQURE('-')){
+    else if(REQUIRE('-')){
         (*ptrPos)++;
         Node* subNode = nodeInit();
         subNode->type = Sub;
@@ -64,9 +96,9 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
         return firstArg;
 }
 
-Node* expr_unaryPlus(const int line[], unsigned *ptrPos){
-    SKIP_BRACES;
-    if(REQURE('+')){
+Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
+
+    if(REQUIRE('+')){
         (*ptrPos)++;
         Node* unaryPlusNode = nodeInit();
         unaryPlusNode->type = UnaryPlus;
@@ -75,7 +107,7 @@ Node* expr_unaryPlus(const int line[], unsigned *ptrPos){
         argument->prev = unaryPlusNode;
         return unaryPlusNode;
     }
-    else if(REQURE('-')){
+    else if(REQUIRE('-')){
         (*ptrPos)++;
         Node* unaryMinusNode = nodeInit();
         unaryMinusNode->type = UnaryMinus;
@@ -89,14 +121,15 @@ Node* expr_unaryPlus(const int line[], unsigned *ptrPos){
 }
 
 Node* expr_mul(const int line[], unsigned *ptrPos){
-    SKIP_BRACES;
+
     Node* firstArg = expr_div(line, ptrPos);
     return expr_mul_(line, ptrPos, firstArg);
 }
 
 Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg){
-    SKIP_BRACES;
-    if(REQURE('*')){
+    assert(firstArg != NULL);
+
+    if(REQUIRE('*')){
         (*ptrPos)++;
         Node* mulNode = nodeInit();
         mulNode->type = Mul;
@@ -112,14 +145,15 @@ Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg){
 }
 
 Node* expr_div(const int line[], unsigned *ptrPos){
-    SKIP_BRACES;
+
     Node* firstArg = expr_pwr(line, ptrPos);
     return expr_div_(line, ptrPos, firstArg);
 }
 
-Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg){
-    SKIP_BRACES;
-    if(REQURE('/')){
+Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg){\
+    assert(firstArg != NULL);
+
+    if(REQUIRE('/')){
         (*ptrPos)++;
         Node* divNode = nodeInit();
         divNode->type = Div;
@@ -135,14 +169,15 @@ Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg){
 }
 
 Node* expr_pwr(const int line[], unsigned *ptrPos){
-    SKIP_BRACES;
+
     Node* firstArg = expr_sin_cos(line, ptrPos);
     return expr_pwr_(line, ptrPos, firstArg);
 }
 
 Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg){
-    SKIP_BRACES;
-    if(REQURE('^')){
+    assert(firstArg != NULL);
+
+    if(REQUIRE('^')){
         (*ptrPos)++;
         Node* pwrNode = nodeInit();
         pwrNode->type = Pwr;
@@ -158,8 +193,8 @@ Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg){
 }
 
 Node* expr_sin_cos(const int line[], unsigned *ptrPos){
-    SKIP_BRACES;
-    if(strCompareIntChar(&line[*ptrPos], "sin")){
+
+    if(strCompareIntChar(&line[*ptrPos], "sin(")){
         (*ptrPos) += 3;
         Node* sinNode = nodeInit();
         sinNode->type = Sin;
@@ -168,7 +203,7 @@ Node* expr_sin_cos(const int line[], unsigned *ptrPos){
         argument->prev = sinNode;
         return sinNode;
     }
-    else if(strCompareIntChar(&line[*ptrPos], "cos")){
+    else if(strCompareIntChar(&line[*ptrPos], "cos(")){
         (*ptrPos) += 3;
         Node* cosNode = nodeInit();
         cosNode->type = Cos;
@@ -181,15 +216,16 @@ Node* expr_sin_cos(const int line[], unsigned *ptrPos){
         return expr_other(line, ptrPos);
 }
 
+#define MAXVAR 100
 #define MAXOP 100
 
 Node* expr_other(const int line[], unsigned *ptrPos) {
-    SKIP_BRACES;
-    if(REQURE('(')){
+
+    if(REQUIRE('(')){
         (*ptrPos)++;
         Node* result = expr_sum_sub(line, ptrPos);
-        SKIP_BRACES;
-        if(REQURE(')')){
+
+        if(REQUIRE(')')){
             (*ptrPos)++;
             return result;
         }
@@ -197,7 +233,7 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
             printf("error no brace, pos: %d\n", *ptrPos);
         }
     }
-    else if(ISDIGIT){ //пока трахаюсь только с целыми //FIXME
+    else if(ISDIGIT){ //пока трахаюсь только с целыми //FIXME добавить проверку после
 
         Node* numNode = nodeInit();
         numNode->type = Num;
@@ -210,15 +246,25 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
         numNode->value = value;
         return numNode;
     }
-    else if(line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z'){ //var
+    else if(ISCHAR){ //var
 
+        Node* varNode = nodeInit();
+        varNode->ptrValue = malloc(sizeof(int) * MAXVAR);
+        varNode->type = Var;
+
+        unsigned i = 0;
+
+        do
+            ((int*)varNode->ptrValue)[i++] = line[(*ptrPos)++];
+        while((ISCHAR || ISDIGIT) && (i < MAXVAR - 1));
+        ((int*)varNode->ptrValue)[i] = '\0';
+
+        return varNode;
     }
 
     printf("error\n");
     Node* errorNode = nodeInit();
     errorNode->type = Error;
     return errorNode;
-
-    assert(0);
 }
 #pragma clang diagnostic pop

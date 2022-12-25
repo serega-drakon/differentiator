@@ -1,4 +1,5 @@
 #include "Node.h"
+#include "../InputOutput/InputOutput.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
@@ -7,6 +8,7 @@ Node* nodeInit(){
     Node* node = malloc(sizeof(Node));
     node->type = Empty;
     node->value = 0; //FIXME: тут токо целые пока
+    node->ptrValue = NULL;
     node->prev = NULL;
     node->left = NULL;
     node->right = NULL;
@@ -15,7 +17,7 @@ Node* nodeInit(){
 
 /// удаляет один узел дерева
 void nodeFree(Node* node){
-    //free(node->value);
+    free(node->ptrValue);
     free(node);
 }
 
@@ -54,9 +56,9 @@ void nodePushMessage(FILE* output, Node* node){
             fprintf(output, "Cos");
             break;
         case Var:
-            //FIXME
+            fprintIntS(output, (int*)node->ptrValue);
             break;
-        case Num: //FIXME: int to double or together
+        case Num:   //FIXME: int to double or together
             fprintf(output, "%d", node->value);
             break;
         case Error:

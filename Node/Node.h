@@ -22,6 +22,7 @@ enum Types_{
 typedef struct Node_ {
     unsigned type;
     unsigned value; //FIXME: replace with void*
+    void* ptrValue;
     struct Node_* prev;
     struct Node_* left;
     struct Node_* right;

@@ -7,15 +7,16 @@
 
 int main() {
     int input [MAXLEN];
-    Node* result;
+    Node* result = NULL;
 
     FILE* output = fopen("../output.txt", "w");
 
     if(getlineCMD(input, MAXLEN) > 0) {
-        result = expr(input);
+        result = expr(input, MAXLEN);
         nodeSaveToFile(output, result);
     }
 
+    nodeFree(result);
     fclose(output);
     return 0;
 }
