@@ -30,6 +30,7 @@ typedef struct Node_ {
 
 Node* nodeInit();
 void nodeFree(Node* node);
+void nodeClear(Node* node);
 void nodeSaveToFile(FILE* output, Node* node);
 
 #endif //DIFFERENTIATOR_NODE_H

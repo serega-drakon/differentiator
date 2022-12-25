@@ -4,12 +4,24 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include "Differentiator.h"
+#include <limits.h>
+#include "expr.h"
 #include "../InputOutput/InputOutput.h"
 
 #define REQUIRE(symbol) (line[*ptrPos] == symbol)
+
 #define ISDIGIT (isdigit(line[*ptrPos]))
-#define ISCHAR ((line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z') || (line[*ptrPos] >= 'A' && line[*ptrPos] <= 'Z') || line[*ptrPos] == '_')
+
+#define ISCHAR ((line[*ptrPos] >= 'a' && line[*ptrPos] <= 'z') \
+ || (line[*ptrPos] >= 'A' && line[*ptrPos] <= 'Z') || line[*ptrPos] == '_')
+
+#define RET_ERROR_NODE    do{   \
+printf("error by the sybmol \"%c\" at pos %d\n", line[*ptrPos], *ptrPos);\
+Node* errorNode = nodeInit();   \
+errorNode->type = Error;        \
+return errorNode;} while(0)
+
+#define MEM_ERR do{printf("memory error\n"); return 0;} while(0)
 
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
 Node* expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg);
@@ -22,6 +34,17 @@ Node* expr_pwr(const int line[], unsigned *ptrPos);
 Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_sin_cos(const int line[], unsigned *ptrPos);
 Node* expr_other(const int line[], unsigned *ptrPos);
+
+//для лучшего определения ошибок после введения переменной или цифры
+//ака допустимые символы после них
+int isValidAfterVal(int a){
+    switch(a){
+    case '+': case '-': case '*': case '/': case '^': case ')': case '\0':
+        return 1;
+    default:
+        return 0;
+    }
+}
 
 ///подразумеваю, что clearedline достаточно длинная
 int exprLineCheck(int cleared[], const int source[]){
@@ -45,6 +68,7 @@ int exprLineCheck(int cleared[], const int source[]){
 Node* expr(const int inputLine[], unsigned sizeOfline){
 
     int* line = malloc(sizeof(int) * sizeOfline);
+    if(line == NULL) MEM_ERR;
     unsigned pos = 0;
     Node* result;
 
@@ -55,6 +79,7 @@ Node* expr(const int inputLine[], unsigned sizeOfline){
     else {
         printf("syntax error: there are unclosed braces.\n");
         result = nodeInit();
+        if(result == NULL) MEM_ERR;
         result->type = Error;
     }
     return result;
@@ -73,6 +98,7 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
     if(REQUIRE('+')){
         (*ptrPos)++;
         Node* sumNode = nodeInit();
+        if(sumNode == NULL) MEM_ERR;
         sumNode->type = Sum;
         sumNode->left = firstArg;
         firstArg->prev = sumNode;
@@ -84,6 +110,7 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
     else if(REQUIRE('-')){
         (*ptrPos)++;
         Node* subNode = nodeInit();
+        if(subNode == NULL) MEM_ERR;
         subNode->type = Sub;
         subNode->left = firstArg;
         firstArg->prev = subNode;
@@ -101,6 +128,7 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
     if(REQUIRE('+')){
         (*ptrPos)++;
         Node* unaryPlusNode = nodeInit();
+        if(unaryPlusNode == NULL) MEM_ERR;
         unaryPlusNode->type = UnaryPlus;
         Node* argument = expr_mul(line, ptrPos);
         unaryPlusNode->left = argument;
@@ -110,6 +138,7 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
     else if(REQUIRE('-')){
         (*ptrPos)++;
         Node* unaryMinusNode = nodeInit();
+        if(unaryMinusNode == NULL) MEM_ERR;
         unaryMinusNode->type = UnaryMinus;
         Node* argument = expr_mul(line, ptrPos);
         unaryMinusNode->left = argument;
@@ -132,6 +161,7 @@ Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg){
     if(REQUIRE('*')){
         (*ptrPos)++;
         Node* mulNode = nodeInit();
+        if(mulNode == NULL) MEM_ERR;
         mulNode->type = Mul;
         mulNode->left = firstArg;
         firstArg->prev = mulNode;
@@ -156,6 +186,7 @@ Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg){\
     if(REQUIRE('/')){
         (*ptrPos)++;
         Node* divNode = nodeInit();
+        if(divNode == NULL) MEM_ERR;
         divNode->type = Div;
         divNode->left = firstArg;
         firstArg->prev = divNode;
@@ -180,6 +211,7 @@ Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg){
     if(REQUIRE('^')){
         (*ptrPos)++;
         Node* pwrNode = nodeInit();
+        if(pwrNode == NULL) MEM_ERR;
         pwrNode->type = Pwr;
         pwrNode->left = firstArg;
         firstArg->prev = pwrNode;
@@ -197,6 +229,7 @@ Node* expr_sin_cos(const int line[], unsigned *ptrPos){
     if(strCompareIntChar(&line[*ptrPos], "sin(")){
         (*ptrPos) += 3;
         Node* sinNode = nodeInit();
+        if(sinNode == NULL) MEM_ERR;
         sinNode->type = Sin;
         Node* argument = expr_other(line, ptrPos);
         sinNode->left = argument;
@@ -206,6 +239,7 @@ Node* expr_sin_cos(const int line[], unsigned *ptrPos){
     else if(strCompareIntChar(&line[*ptrPos], "cos(")){
         (*ptrPos) += 3;
         Node* cosNode = nodeInit();
+        if(cosNode == NULL) MEM_ERR;
         cosNode->type = Cos;
         Node* argument = expr_other(line, ptrPos);
         cosNode->left = argument;
@@ -233,23 +267,39 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
             printf("error no brace, pos: %d\n", *ptrPos);
         }
     }
-    else if(ISDIGIT){ //пока трахаюсь только с целыми //FIXME добавить проверку после
+    else if(ISDIGIT){
 
         Node* numNode = nodeInit();
+        if(numNode == NULL) MEM_ERR;
+        numNode->ptrValue = malloc(sizeof(double));
+        if(numNode->ptrValue == NULL) MEM_ERR;
         numNode->type = Num;
 
-        unsigned value = 0;
-        do
-            value = value * 10 + line[(*ptrPos)++] - '0';
-        while(ISDIGIT);
+        unsigned i = 0;
+        unsigned point = 0;
+        char op[ MAXOP ];
 
-        numNode->value = value;
-        return numNode;
+        do{
+            if(REQUIRE('.'))
+                point++;
+            op[i++] = (char) line[(*ptrPos)++];
+        } while((ISDIGIT || REQUIRE('.')) && point < 2 && i < MAXOP - 1
+        && line[*ptrPos] >= CHAR_MIN && line[*ptrPos] <= CHAR_MAX);
+
+        if(point < 2 && isValidAfterVal(line[*ptrPos])){
+            op[i] = '\0';
+            *(double*)numNode->ptrValue = strtod(op, NULL);
+            return numNode;
+        }
+        else
+            RET_ERROR_NODE;
     }
     else if(ISCHAR){ //var
 
         Node* varNode = nodeInit();
+        if(varNode == NULL) MEM_ERR;
         varNode->ptrValue = malloc(sizeof(int) * MAXVAR);
+        if(varNode->ptrValue == NULL) MEM_ERR;
         varNode->type = Var;
 
         unsigned i = 0;
@@ -259,12 +309,13 @@ Node* expr_other(const int line[], unsigned *ptrPos) {
         while((ISCHAR || ISDIGIT) && (i < MAXVAR - 1));
         ((int*)varNode->ptrValue)[i] = '\0';
 
-        return varNode;
+        if(isValidAfterVal(line[*ptrPos]))
+            return varNode;
+        else
+            RET_ERROR_NODE;
     }
 
     printf("error\n");
-    Node* errorNode = nodeInit();
-    errorNode->type = Error;
-    return errorNode;
+    RET_ERROR_NODE;
 }
 #pragma clang diagnostic pop

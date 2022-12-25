@@ -59,7 +59,7 @@ void nodePushMessage(FILE* output, Node* node){
             fprintIntS(output, (int*)node->ptrValue);
             break;
         case Num:   //FIXME: int to double or together
-            fprintf(output, "%d", node->value);
+            fprintf(output, "%g", *(double*)node->ptrValue);
             break;
         case Error:
             fprintf(output, "*Here error*");
