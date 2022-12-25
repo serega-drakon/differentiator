@@ -1,11 +1,10 @@
 #include "InputOutput.h"
-#include <limits.h>
 #include <stdio.h>
 
 int strCompareIntChar(const int a[], const char b[]){
 
     int i;
-    for(i = 0; a[i] != '\0' && b[i] != '\0' && (char)a[i] == b[i] && a[i] >= CHAR_MIN && a[i] <= CHAR_MAX; i++)
+    for(i = 0; a[i] != '\0' && b[i] != '\0' && a[i] == (int)b[i]; i++)
         ;
     if(b[i] == '\0')
         return 1;
