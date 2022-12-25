@@ -26,10 +26,8 @@ return errorNode;} while(0)
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
 Node* expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg);
 Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos);
-Node* expr_mul(const int line[], unsigned *ptrPos);
-Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg);
-Node* expr_div(const int line[], unsigned *ptrPos);
-Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg);
+Node* expr_mul_div(const int line[], unsigned *ptrPos);
+Node* expr_mul_div_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_pwr(const int line[], unsigned *ptrPos);
 Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_sin_cos(const int line[], unsigned *ptrPos);
@@ -102,7 +100,7 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
         sumNode->type = Sum;
         sumNode->left = firstArg;
         firstArg->prev = sumNode;
-        Node* secondArg = expr_mul(line, ptrPos);
+        Node* secondArg = expr_mul_div(line, ptrPos);
         sumNode->right = secondArg;
         secondArg->prev = sumNode;
         return expr_sum_sub_(line, ptrPos, sumNode);
@@ -114,7 +112,7 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
         subNode->type = Sub;
         subNode->left = firstArg;
         firstArg->prev = subNode;
-        Node* secondArg = expr_mul(line, ptrPos);
+        Node* secondArg = expr_mul_div(line, ptrPos);
         subNode->right = secondArg;
         secondArg->prev = subNode;
         return expr_sum_sub_(line, ptrPos, subNode);
@@ -130,7 +128,7 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
         Node* unaryPlusNode = nodeInit();
         if(unaryPlusNode == NULL) MEM_ERR;
         unaryPlusNode->type = UnaryPlus;
-        Node* argument = expr_mul(line, ptrPos);
+        Node* argument = expr_mul_div(line, ptrPos);
         unaryPlusNode->left = argument;
         argument->prev = unaryPlusNode;
         return unaryPlusNode;
@@ -140,22 +138,22 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
         Node* unaryMinusNode = nodeInit();
         if(unaryMinusNode == NULL) MEM_ERR;
         unaryMinusNode->type = UnaryMinus;
-        Node* argument = expr_mul(line, ptrPos);
+        Node* argument = expr_mul_div(line, ptrPos);
         unaryMinusNode->left = argument;
         argument->prev = unaryMinusNode;
         return unaryMinusNode;
     }
     else
-        return expr_mul(line, ptrPos);
+        return expr_mul_div(line, ptrPos);
 }
 
-Node* expr_mul(const int line[], unsigned *ptrPos){
+Node* expr_mul_div(const int line[], unsigned *ptrPos){
 
-    Node* firstArg = expr_div(line, ptrPos);
-    return expr_mul_(line, ptrPos, firstArg);
+    Node* firstArg = expr_pwr(line, ptrPos);
+    return expr_mul_div_(line, ptrPos, firstArg);
 }
 
-Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg){
+Node* expr_mul_div_(const int line[], unsigned *ptrPos, Node* firstArg){
     assert(firstArg != NULL);
 
     if(REQUIRE('*')){
@@ -165,35 +163,22 @@ Node* expr_mul_(const int line[], unsigned *ptrPos, Node* firstArg){
         mulNode->type = Mul;
         mulNode->left = firstArg;
         firstArg->prev = mulNode;
-        Node* secondArg = expr_div(line, ptrPos);
+        Node* secondArg = expr_pwr(line, ptrPos);
         mulNode->right = secondArg;
         secondArg->prev = mulNode;
-        return expr_mul_(line, ptrPos, mulNode);
+        return expr_mul_div_(line, ptrPos, mulNode);
     }
-    else
-        return firstArg;
-}
-
-Node* expr_div(const int line[], unsigned *ptrPos){
-
-    Node* firstArg = expr_pwr(line, ptrPos);
-    return expr_div_(line, ptrPos, firstArg);
-}
-
-Node* expr_div_(const int line[], unsigned *ptrPos, Node* firstArg){\
-    assert(firstArg != NULL);
-
-    if(REQUIRE('/')){
+    else if (REQUIRE('/')) {
         (*ptrPos)++;
-        Node* divNode = nodeInit();
-        if(divNode == NULL) MEM_ERR;
+        Node *divNode = nodeInit();
+        if (divNode == NULL) MEM_ERR;
         divNode->type = Div;
         divNode->left = firstArg;
         firstArg->prev = divNode;
-        Node* secondArg = expr_pwr(line, ptrPos);
+        Node *secondArg = expr_pwr(line, ptrPos);
         divNode->right = secondArg;
         secondArg->prev = divNode;
-        return expr_div_(line, ptrPos, divNode);
+        return expr_mul_div_(line, ptrPos, divNode);
     }
     else
         return firstArg;
