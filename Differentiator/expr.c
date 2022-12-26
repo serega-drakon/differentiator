@@ -23,6 +23,27 @@ return errorNode;} while(0)
 
 #define MEM_ERR do{printf("memory error\n"); return 0;} while(0)
 
+#define RET_UNARY_NODE(typeNode, nextFunc) do{\
+Node* unarNode = nodeInit();\
+if(unarNode == NULL) MEM_ERR;\
+unarNode->type = typeNode;\
+Node* argument = nextFunc(line, ptrPos);\
+unarNode->left = argument;\
+argument->prev = unarNode;\
+return unarNode;} while(0)
+
+#define RET_BINARY_NODE(currFunc, typeNode, nextFunc) do{ \
+Node* newNode = nodeInit(); \
+if(newNode == NULL) MEM_ERR;\
+newNode->type = typeNode;        \
+newNode->left = firstArg;   \
+firstArg->prev = newNode;   \
+Node* secondArg = nextFunc(line, ptrPos);\
+newNode->right = secondArg; \
+secondArg->prev = newNode;  \
+return currFunc(line, ptrPos, newNode);\
+} while(0)
+
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
 Node* expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg);
 Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos);
@@ -30,7 +51,7 @@ Node* expr_mul_div(const int line[], unsigned *ptrPos);
 Node* expr_mul_div_(const int line[], unsigned *ptrPos, Node* firstArg);
 Node* expr_pwr(const int line[], unsigned *ptrPos);
 Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg);
-Node* expr_sin_cos(const int line[], unsigned *ptrPos);
+Node* expr_sin_cos_ln(const int line[], unsigned *ptrPos);
 Node* expr_other(const int line[], unsigned *ptrPos);
 
 //для лучшего определения ошибок после введения переменной или цифры
@@ -95,27 +116,11 @@ Node *expr_sum_sub_(const int line[], unsigned *ptrPos, Node *firstArg) {
 
     if(REQUIRE('+')){
         (*ptrPos)++;
-        Node* sumNode = nodeInit();
-        if(sumNode == NULL) MEM_ERR;
-        sumNode->type = Sum;
-        sumNode->left = firstArg;
-        firstArg->prev = sumNode;
-        Node* secondArg = expr_mul_div(line, ptrPos);
-        sumNode->right = secondArg;
-        secondArg->prev = sumNode;
-        return expr_sum_sub_(line, ptrPos, sumNode);
+        RET_BINARY_NODE(expr_sum_sub_, Sum, expr_mul_div);
     }
     else if(REQUIRE('-')){
         (*ptrPos)++;
-        Node* subNode = nodeInit();
-        if(subNode == NULL) MEM_ERR;
-        subNode->type = Sub;
-        subNode->left = firstArg;
-        firstArg->prev = subNode;
-        Node* secondArg = expr_mul_div(line, ptrPos);
-        subNode->right = secondArg;
-        secondArg->prev = subNode;
-        return expr_sum_sub_(line, ptrPos, subNode);
+        RET_BINARY_NODE(expr_sum_sub_, Sub, expr_mul_div);
     }
     else
         return firstArg;
@@ -125,23 +130,11 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
 
     if(REQUIRE('+')){
         (*ptrPos)++;
-        Node* unaryPlusNode = nodeInit();
-        if(unaryPlusNode == NULL) MEM_ERR;
-        unaryPlusNode->type = UnaryPlus;
-        Node* argument = expr_mul_div(line, ptrPos);
-        unaryPlusNode->left = argument;
-        argument->prev = unaryPlusNode;
-        return unaryPlusNode;
+        RET_UNARY_NODE(UnaryPlus, expr_mul_div);
     }
     else if(REQUIRE('-')){
         (*ptrPos)++;
-        Node* unaryMinusNode = nodeInit();
-        if(unaryMinusNode == NULL) MEM_ERR;
-        unaryMinusNode->type = UnaryMinus;
-        Node* argument = expr_mul_div(line, ptrPos);
-        unaryMinusNode->left = argument;
-        argument->prev = unaryMinusNode;
-        return unaryMinusNode;
+        RET_UNARY_NODE(UnaryMinus, expr_mul_div);
     }
     else
         return expr_mul_div(line, ptrPos);
@@ -158,27 +151,11 @@ Node* expr_mul_div_(const int line[], unsigned *ptrPos, Node* firstArg){
 
     if(REQUIRE('*')){
         (*ptrPos)++;
-        Node* mulNode = nodeInit();
-        if(mulNode == NULL) MEM_ERR;
-        mulNode->type = Mul;
-        mulNode->left = firstArg;
-        firstArg->prev = mulNode;
-        Node* secondArg = expr_pwr(line, ptrPos);
-        mulNode->right = secondArg;
-        secondArg->prev = mulNode;
-        return expr_mul_div_(line, ptrPos, mulNode);
+        RET_BINARY_NODE(expr_mul_div_, Mul, expr_pwr);
     }
     else if (REQUIRE('/')) {
         (*ptrPos)++;
-        Node *divNode = nodeInit();
-        if (divNode == NULL) MEM_ERR;
-        divNode->type = Div;
-        divNode->left = firstArg;
-        firstArg->prev = divNode;
-        Node *secondArg = expr_pwr(line, ptrPos);
-        divNode->right = secondArg;
-        secondArg->prev = divNode;
-        return expr_mul_div_(line, ptrPos, divNode);
+        RET_BINARY_NODE(expr_mul_div_, Div, expr_pwr);
     }
     else
         return firstArg;
@@ -186,7 +163,7 @@ Node* expr_mul_div_(const int line[], unsigned *ptrPos, Node* firstArg){
 
 Node* expr_pwr(const int line[], unsigned *ptrPos){
 
-    Node* firstArg = expr_sin_cos(line, ptrPos);
+    Node* firstArg = expr_sin_cos_ln(line, ptrPos);
     return expr_pwr_(line, ptrPos, firstArg);
 }
 
@@ -195,43 +172,26 @@ Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg){
 
     if(REQUIRE('^')){
         (*ptrPos)++;
-        Node* pwrNode = nodeInit();
-        if(pwrNode == NULL) MEM_ERR;
-        pwrNode->type = Pwr;
-        pwrNode->left = firstArg;
-        firstArg->prev = pwrNode;
-        Node* secondArg = expr_sin_cos(line, ptrPos);
-        pwrNode->right = secondArg;
-        secondArg->prev = pwrNode;
-        return expr_pwr_(line, ptrPos, pwrNode);
+        RET_BINARY_NODE(expr_pwr_, Pwr, expr_sin_cos_ln);
     }
     else
         return firstArg;
 }
 
-Node* expr_sin_cos(const int line[], unsigned *ptrPos){
+Node* expr_sin_cos_ln(const int line[], unsigned *ptrPos){
 
     if(strCompareIntChar(&line[*ptrPos], "sin(")){
         (*ptrPos) += 3;
-        Node* sinNode = nodeInit();
-        if(sinNode == NULL) MEM_ERR;
-        sinNode->type = Sin;
-        Node* argument = expr_other(line, ptrPos);
-        sinNode->left = argument;
-        argument->prev = sinNode;
-        return sinNode;
+        RET_UNARY_NODE(Sin, expr_other);
     }
     else if(strCompareIntChar(&line[*ptrPos], "cos(")){
         (*ptrPos) += 3;
-        Node* cosNode = nodeInit();
-        if(cosNode == NULL) MEM_ERR;
-        cosNode->type = Cos;
-        Node* argument = expr_other(line, ptrPos);
-        cosNode->left = argument;
-        argument->prev = cosNode;
-        return cosNode;
+        RET_UNARY_NODE(Cos, expr_other);
     }
-    else
+    else if (strCompareIntChar(&line[*ptrPos], "ln(")){
+        (*ptrPos) += 2;
+        RET_UNARY_NODE(Ln, expr_other);
+    } else
         return expr_other(line, ptrPos);
 }
 

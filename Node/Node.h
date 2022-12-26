@@ -14,6 +14,7 @@ enum Types_{
     Pwr,
     Sin,
     Cos,
+    Ln,
     Var,    ///< value -> str
     Num,    ///< value -> int / double
     Error   ///< value -> str

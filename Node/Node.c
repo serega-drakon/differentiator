@@ -57,6 +57,9 @@ void nodePushMessage(FILE* output, Node* node){
         case Cos:
             fprintf(output, "Cos");
             break;
+        case Ln:
+            fprintf(output, "Ln");
+            break;
         case Var:
             fprintIntS(output, (int*)node->ptrValue);
             break;

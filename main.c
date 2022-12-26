@@ -2,24 +2,38 @@
 #include "Node/Node.h"
 #include "InputOutput/InputOutput.h"
 #include "Differentiator/expr.h"
+#include "Differentiator/diff.h"
+#include "Differentiator/opt.h"
 
 #define MAXLEN 300
 
 int main() {
     int input [ MAXLEN ];
-    Node* result = NULL;
+    Node* exprRes = NULL;
+    Node* diffRes = NULL;
 
-    FILE* output = fopen("../output.txt", "w");
+    FILE* outputExpr = fopen("../outputExpr.txt", "w");
+    FILE* outputDiff = fopen("../outputDiff.txt", "w");
+    FILE* outputOpt = fopen("../outputOpt.txt", "w");
 
     if(getlineCMD(input, MAXLEN) > 0) {
-        result = expr(input, MAXLEN);
-        if(result != NULL)
-            nodeSaveToFile(output, result);
+        exprRes = expr(input, MAXLEN);
+        if(exprRes != NULL)
+            nodeSaveToFile(outputExpr, exprRes);
         else
-            printf("main: error NULL result\n");
+            printf("main: error NULL exprRes\n");
+        diffRes = diff(exprRes);
+        if(diffRes != NULL)
+            nodeSaveToFile(outputDiff, diffRes);
+        else
+            printf("main: error NULL diffRes\n");
+
     }
 
-    nodeClear(result);
-    fclose(output);
+    nodeClear(exprRes);
+    nodeClear(diffRes);
+    fclose(outputExpr);
+    fclose(outputDiff);
+    fclose(outputOpt);
     return 0;
 }
