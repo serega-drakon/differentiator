@@ -9,6 +9,8 @@
 Node* nodeInit(){
 
     Node* node = malloc(sizeof(Node));
+    if(node == NULL)
+        printf("nodeInit: memory alloc error\n");
     node->type = Empty;
     node->ptrValue = NULL;
     node->prev = NULL;
@@ -17,21 +19,41 @@ Node* nodeInit(){
     return node;
 }
 
-/// инициализирует узел данного типа, при необходимости выделяет память под ptrValue
-Node* nodeInitType(unsigned type, Node* prevNode){
+Node* nodeInitType(unsigned type){
+
     Node* node = nodeInit();
+    if(node == NULL) return NULL;
     node->type = type;
-    node->prev = prevNode;
     switch(type){
         case Var:
             node->ptrValue = malloc(sizeof(int) * MAXVAR);
+
+            if(node->ptrValue ==  NULL){
+                printf("nodeInitTypePrev: memory alloc error\n");
+                free(node);
+                return NULL;
+            }
             break;
         case Num:
             node->ptrValue = calloc(1, sizeof(double));
+
+            if(node->ptrValue ==  NULL){
+                printf("nodeInitTypePrev: memory alloc error\n");
+                free(node);
+                return NULL;
+            }
             break;
         default:
             break;
     }
+    return node;
+}
+
+/// инициализирует узел данного типа, при необходимости выделяет память под ptrValue
+Node* nodeInitTypePrev(unsigned type, Node* prevNode){
+
+    Node* node = nodeInitType(type);
+    node->prev = prevNode;
     return node;
 }
 
@@ -47,19 +69,6 @@ void nodeClear(Node* node){
     //FIXME
 }
 
-void* nodeValueCopy(Node* node){
-    assert(node != NULL);
-
-    switch(node->type){
-        case Var:
-            return initCopiedStr(node->ptrValue, MAXVAR);
-        case Num:
-            return initCopiedNum(node->ptrValue);
-        default:
-            return NULL;
-    }
-}
-
 /// nodeCopy, но с возможностью связать полученное дерево с prevNode
 Node* nodeCopyPrev(Node* node, Node* prevNode){
     assert(node != NULL);
@@ -69,14 +78,29 @@ Node* nodeCopyPrev(Node* node, Node* prevNode){
     return copy;
 }
 
+void nodeValueCopy(Node* fromNode, Node* toNode){
+    assert(fromNode != NULL && toNode != NULL);
+
+    switch(fromNode->type){
+        case Var:
+            copyStr(fromNode->ptrValue, toNode->ptrValue);
+            break;
+        case Num:
+            *(double*)toNode->ptrValue = *(double*)fromNode->ptrValue;
+            break;
+        default:
+            break;
+    }
+}
+
 /// Инициализирует новое дерево, совпадающее с данным (ptrValue указывает на др совпадающую величину)
-Node *nodeCopy(Node *node) { //FIXME: dont forget about ptrValue!
+Node* nodeCopy(Node* node) {
     assert(node != NULL);
 
-    Node* copy = nodeInit();
-    copy->type = node->type;
-    copy->prev = node->prev;
-    copy->ptrValue = nodeValueCopy(node);
+    Node* copy = nodeInitTypePrev(node->type, node->prev);
+
+    nodeValueCopy(node, copy);
+
     if(node->left != NULL)
         copy->left = nodeCopy(node->left);
     if(node->right != NULL)
@@ -85,8 +109,9 @@ Node *nodeCopy(Node *node) { //FIXME: dont forget about ptrValue!
 }
 
 Node* initNumNode(double value, Node* prevNode){
-    Node* numNode = nodeInitType(Num, prevNode);
-    *(double*)numNode->ptrValue = value;
+    Node* numNode = nodeInitTypePrev(Num, prevNode);
+    if(numNode != NULL)
+        *(double*)numNode->ptrValue = value;
     return numNode;
 }
 
@@ -125,7 +150,7 @@ void nodePushMessage(FILE* output, Node* node){
         case Var:
             fprintIntS(output, (int*)node->ptrValue);
             break;
-        case Num:   //FIXME: int to double or together
+        case Num:
             fprintf(output, "%g", *(double*)node->ptrValue);
             break;
         case Error:

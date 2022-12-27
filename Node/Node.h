@@ -31,7 +31,8 @@ typedef struct Node_ {
 } Node;
 
 Node* nodeInit();
-Node* nodeInitType(unsigned type, Node* prevNode);
+Node* nodeInitTypePrev(unsigned type, Node* prevNode);
+Node* nodeInitType(unsigned type);
 Node* initNumNode(double value, Node* prevNode);
 void nodeFree(Node* node);
 void nodeClear(Node* node);

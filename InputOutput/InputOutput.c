@@ -40,21 +40,10 @@ void fprintIntS(FILE* output, int str[]){
         putc(str[i], output);
 }
 
-int* initCopiedStr(const int a[], unsigned max){
-
-    int* copy = malloc(sizeof(int) * max);
+void copyStr(const int fromStr[], int toStr[]){
 
     int i;
-    for(i = 0; a[i] != '\0' && i < max - 1; i++)
-        copy[i] = a[i];
-    copy[i] = '\0';
-
-    return copy;
-}
-
-double* initCopiedNum(const double* num){
-
-    double* copy = malloc(sizeof(double));
-    *copy = *num;
-    return copy;
+    for(i = 0; fromStr[i] != '\0'; i++)
+        toStr[i] = fromStr[i];
+    toStr[i] = '\0';
 }
