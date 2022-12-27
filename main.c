@@ -12,17 +12,24 @@ int main() {
     Node* exprRes = NULL;
     Node* diffRes = NULL;
 
-    FILE* outputExpr = fopen("../outputExpr.txt", "w");
-    FILE* outputDiff = fopen("../outputDiff.txt", "w");
-    FILE* outputOpt = fopen("../outputOpt.txt", "w");
+    FILE* outputExpr = fopen("../Debug/outputExpr.txt", "w");
+    FILE* outputDiff = fopen("../Debug/outputDiff.txt", "w");
+    FILE* outputOpt = fopen("../Debug/outputOpt.txt", "w");
 
-    if(getlineCMD(input, MAXLEN) > 0) {
+    printf("Введите выражение:\n");
+
+    if(getlineCMD(input, MAXLEN) > 0){
         exprRes = expr(input, MAXLEN);
         if(exprRes != NULL)
             nodeSaveToFile(outputExpr, exprRes);
         else
             printf("main: error NULL exprRes\n");
-        diffRes = diff(exprRes);
+
+        int var[ MAXVAR ];
+        printf("Введите переменную, по которой будем дифференцировать:\n");
+        getlineCMD(var, MAXVAR);
+
+        diffRes = diff(exprRes, var);
         if(diffRes != NULL)
             nodeSaveToFile(outputDiff, diffRes);
         else

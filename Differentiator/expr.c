@@ -84,7 +84,7 @@ int exprLineCheck(int cleared[], const int source[]){
     return countOfDisclosed;
 }
 
-Node* expr(const int inputLine[], unsigned sizeOfline){
+Node* expr(const int inputLine[], unsigned sizeOfline){     //FIXME: use nodeInitType
 
     int* line = malloc(sizeof(int) * sizeOfline);
     if(line == NULL) MEM_ERR;
@@ -195,10 +195,9 @@ Node* expr_sin_cos_ln(const int line[], unsigned *ptrPos){
         return expr_other(line, ptrPos);
 }
 
-#define MAXVAR 100
 #define MAXOP 100
 
-Node* expr_other(const int line[], unsigned *ptrPos) {
+Node* expr_other(const int line[], unsigned *ptrPos) {  //FIXME: simplify
 
     if(REQUIRE('(')){
         (*ptrPos)++;

@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define MAXVAR 100
+
 enum Types_{
     Empty,
     Sum,
@@ -22,7 +24,6 @@ enum Types_{
 
 typedef struct Node_ {
     unsigned type;
-    unsigned value; //FIXME: replace with void*
     void* ptrValue;
     struct Node_* prev;
     struct Node_* left;
@@ -30,8 +31,12 @@ typedef struct Node_ {
 } Node;
 
 Node* nodeInit();
+Node* nodeInitType(unsigned type, Node* prevNode);
+Node* initNumNode(double value, Node* prevNode);
 void nodeFree(Node* node);
 void nodeClear(Node* node);
 void nodeSaveToFile(FILE* output, Node* node);
+Node* nodeCopy(Node *node);
+Node* nodeCopyPrev(Node* node, Node* prevNode);
 
 #endif //DIFFERENTIATOR_NODE_H

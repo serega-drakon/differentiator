@@ -1,4 +1,0 @@
-digraph Cock{
-node[color=blue,fontsize=14, style=filled,fillcolor=lightgrey]
-4377336944 [label = ""]
-}
