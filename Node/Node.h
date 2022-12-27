@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+#define MEM_ERR do{printf("memory error\n"); return NULL;} while(0)
+
+#define MEM_CHECK(var) do{if(var == NULL) MEM_ERR; } while(0)
+
 #define MAXVAR 100
 
 enum Types_{

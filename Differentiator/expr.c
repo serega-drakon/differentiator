@@ -21,27 +21,25 @@ Node* errorNode = nodeInit();   \
 errorNode->type = Error;        \
 return errorNode;} while(0)
 
-#define MEM_ERR do{printf("memory error\n"); return NULL;} while(0)
-
 #define RET_UNARY_NODE(typeNode, nextFunc) do{\
-Node* unarNode = nodeInit();\
-if(unarNode == NULL) MEM_ERR;\
-unarNode->type = typeNode;\
+Node* unaryNode = nodeInit();\
+MEM_CHECK(unaryNode);        \
+unaryNode->type = typeNode;  \
 Node* argument = nextFunc(line, ptrPos);\
-unarNode->left = argument;\
-argument->prev = unarNode;\
-return unarNode;} while(0)
+unaryNode->left = argument;  \
+argument->prev = unaryNode;  \
+return unaryNode;} while(0)
 
 #define RET_BINARY_NODE(currFunc, typeNode, nextFunc) do{ \
-Node* newNode = nodeInit(); \
-if(newNode == NULL) MEM_ERR;\
-newNode->type = typeNode;        \
-newNode->left = firstArg;   \
-firstArg->prev = newNode;   \
+Node* binaryNode = nodeInit(); \
+MEM_CHECK(binaryNode);         \
+binaryNode->type = typeNode;   \
+binaryNode->left = firstArg;   \
+firstArg->prev = binaryNode;   \
 Node* secondArg = nextFunc(line, ptrPos);\
-newNode->right = secondArg; \
-secondArg->prev = newNode;  \
-return currFunc(line, ptrPos, newNode);\
+binaryNode->right = secondArg; \
+secondArg->prev = binaryNode;  \
+return currFunc(line, ptrPos, binaryNode);\
 } while(0)
 
 Node* expr_sum_sub(const int line[], unsigned *ptrPos);
@@ -88,7 +86,7 @@ int exprLineCheck(int cleared[], const int source[]){
 Node* expr(const int inputLine[], unsigned sizeOfline){
 
     int* line = malloc(sizeof(int) * sizeOfline);
-    if(line == NULL) MEM_ERR;
+    MEM_CHECK(line);
     unsigned pos = 0;
     Node* result;
 
@@ -99,13 +97,13 @@ Node* expr(const int inputLine[], unsigned sizeOfline){
     else {
         printf("syntax error: there are unclosed braces.\n");
         result = nodeInit();
-        if(result == NULL) MEM_ERR;
+        MEM_CHECK(result);
         result->type = Error;
     }
     return result;
 }
 
-Node *expr_sum_sub(const int line[], unsigned *ptrPos) {
+Node* expr_sum_sub(const int line[], unsigned *ptrPos) {
     assert(line != NULL);
 
     Node* firstArg = expr_unaryPlusMinus(line, ptrPos);
@@ -240,7 +238,7 @@ Node* expr_brace(const int line[], unsigned *ptrPos){
 Node* expr_num(const int line[], unsigned *ptrPos){
 
     Node* numNode = nodeInitType(Num);
-    if(numNode == NULL) MEM_ERR;
+    MEM_CHECK(numNode);
 
     unsigned i = 0;
     unsigned point = 0;
@@ -265,7 +263,7 @@ Node* expr_num(const int line[], unsigned *ptrPos){
 Node* expr_var(const int line[], unsigned *ptrPos){
 
     Node* varNode = nodeInitType(Var);
-    if(varNode == NULL) MEM_ERR;
+    MEM_CHECK(varNode);
 
     unsigned i = 0;
 

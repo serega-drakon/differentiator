@@ -64,9 +64,20 @@ void nodeFree(Node* node){
     free(node);
 }
 
+void nodeClearRec(Node* node){
+
+    if(node->left != NULL)
+        nodeClear(node->left);
+    if(node->right != NULL)
+        nodeClear(node->right);
+
+    nodeFree(node);
+}
+
 /// удаляет данное дерево и все его поддеревья
 void nodeClear(Node* node){
-    //FIXME
+    if(node != NULL)
+        nodeClearRec(node);
 }
 
 /// nodeCopy, но с возможностью связать полученное дерево с prevNode

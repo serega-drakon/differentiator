@@ -8,10 +8,10 @@
 #define MAXLEN 300
 
 int main() {
+
     int input [ MAXLEN ];
     Node* exprRes = NULL;
     Node* diffRes = NULL;
-
     FILE* outputExpr = fopen("../Debug/outputExpr.txt", "w");
     FILE* outputDiff = fopen("../Debug/outputDiff.txt", "w");
     FILE* outputOpt = fopen("../Debug/outputOpt.txt", "w");
