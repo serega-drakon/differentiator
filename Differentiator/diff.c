@@ -4,7 +4,7 @@
 #include "diff.h"
 #include "../InputOutput/InputOutput.h"
 
-Node* diff_(Node* nodeToDiff, Node* prevNode);
+Node* diff_(Node* nodeToDiff);
 
 const int* diffVar;
 
@@ -14,248 +14,248 @@ Node* diff(Node *exprNode, const int var[]) {
         return NULL;
     }
     diffVar = var;
-    return  diff_(exprNode, NULL);
+    return  diff_(exprNode);
 }
 
-Node* diff_sum(Node* nodeToDiff, Node* prevNode);
-Node* diff_sub(Node* nodeToDiff, Node* prevNode);
-Node* diff_unaryPlus(Node* nodeToDiff, Node* prevNode);
-Node* diff_unaryMinus(Node* nodeToDiff, Node* prevNode);
-Node* diff_mul(Node* nodeToDiff, Node* prevNode);
-Node* diff_div(Node* nodeToDiff, Node* prevNode);
-Node* diff_pwr(Node* nodeToDiff, Node* prevNode);
-Node* diff_sin(Node* nodeToDiff, Node* prevNode);
-Node* diff_cos(Node* nodeToDiff, Node* prevNode);
-Node* diff_ln(Node* nodeToDiff, Node* prevNode);
-Node* diff_var(Node* nodeToDiff, Node* prevNode);
-Node* diff_num(Node* nodeToDiff, Node* prevNode);
+Node* diff_sum(Node* nodeToDiff);
+Node* diff_sub(Node* nodeToDiff);
+Node* diff_unaryPlus(Node* nodeToDiff);
+Node* diff_unaryMinus(Node* nodeToDiff);
+Node* diff_mul(Node* nodeToDiff);
+Node* diff_div(Node* nodeToDiff);
+Node* diff_pwr(Node* nodeToDiff);
+Node* diff_sin(Node* nodeToDiff);
+Node* diff_cos(Node* nodeToDiff);
+Node* diff_ln(Node* nodeToDiff);
+Node* diff_var(Node* nodeToDiff);
+Node* diff_num(Node* nodeToDiff);
 
-Node* diff_(Node* nodeToDiff, Node* prevNode){      //FIXME: check for errors
+Node* diff_(Node* nodeToDiff){      //FIXME: check for errors
     switch(nodeToDiff->type){
         case Sum:
-            return diff_sum(nodeToDiff, prevNode);
+            return diff_sum(nodeToDiff);
         case Sub:
-            return diff_sub(nodeToDiff, prevNode);
+            return diff_sub(nodeToDiff);
         case UnaryPlus:
-            return diff_unaryPlus(nodeToDiff, prevNode);
+            return diff_unaryPlus(nodeToDiff);
         case UnaryMinus:
-            return diff_unaryMinus(nodeToDiff, prevNode);
+            return diff_unaryMinus(nodeToDiff);
         case Mul:
-            return diff_mul(nodeToDiff, prevNode);
+            return diff_mul(nodeToDiff);
         case Div:
-            return diff_div(nodeToDiff, prevNode);
+            return diff_div(nodeToDiff);
         case Pwr:
-            return diff_pwr(nodeToDiff, prevNode);
+            return diff_pwr(nodeToDiff);
         case Sin:
-            return diff_sin(nodeToDiff, prevNode);
+            return diff_sin(nodeToDiff);
         case Cos:
-            return diff_cos(nodeToDiff, prevNode);
+            return diff_cos(nodeToDiff);
         case Ln:
-            return diff_ln(nodeToDiff, prevNode);
+            return diff_ln(nodeToDiff);
         case Var:
-            return diff_var(nodeToDiff, prevNode);
+            return diff_var(nodeToDiff);
         case Num:
-            return diff_num(nodeToDiff, prevNode);
+            return diff_num(nodeToDiff);
         default:
             return nodeToDiff;
     }
 }
 
-Node* diff_sum(Node* nodeToDiff, Node* prevNode){
+Node* diff_sum(Node* nodeToDiff){
     assert(nodeToDiff->type == Sum);
     // main
-    Node* mainSumNode = nodeInitTypePrev(Sum, prevNode);
+    Node* mainSumNode = nodeInitType(Sum);
     MEM_CHECK(mainSumNode);
-    mainSumNode->left = diff_(nodeToDiff->left, mainSumNode);
-    mainSumNode->right = diff_(nodeToDiff->right, mainSumNode);
+    mainSumNode->left = diff_(nodeToDiff->left);
+    mainSumNode->right = diff_(nodeToDiff->right);
     return mainSumNode;
 }
 
-Node* diff_sub(Node* nodeToDiff, Node* prevNode){
+Node* diff_sub(Node* nodeToDiff){
     assert(nodeToDiff->type == Sub);
     // main
-    Node* mainSubNode = nodeInitTypePrev(Sub, prevNode);
+    Node* mainSubNode = nodeInitType(Sub);
     MEM_CHECK(mainSubNode);
-    mainSubNode->left = diff_(nodeToDiff->left, mainSubNode);
-    mainSubNode->right = diff_(nodeToDiff->right, mainSubNode);
+    mainSubNode->left = diff_(nodeToDiff->left);
+    mainSubNode->right = diff_(nodeToDiff->right);
     return mainSubNode;
 }
 
-Node* diff_unaryPlus(Node* nodeToDiff, Node* prevNode){
+Node* diff_unaryPlus(Node* nodeToDiff){
     assert(nodeToDiff->type == UnaryPlus);
     // main
-    Node* mainUnaryPlusNode = nodeInitTypePrev(UnaryPlus, prevNode);
+    Node* mainUnaryPlusNode = nodeInitType(UnaryPlus);
     MEM_CHECK(mainUnaryPlusNode);
-    mainUnaryPlusNode->left = diff_(nodeToDiff->left, mainUnaryPlusNode);
+    mainUnaryPlusNode->left = diff_(nodeToDiff->left);
     return mainUnaryPlusNode;
 }
 
-Node* diff_unaryMinus(Node* nodeToDiff, Node* prevNode){
+Node* diff_unaryMinus(Node* nodeToDiff){
     assert(nodeToDiff->type == UnaryMinus);
     // main
-    Node* mainUnaryMinusNode = nodeInitTypePrev(UnaryMinus, prevNode);
+    Node* mainUnaryMinusNode = nodeInitType(UnaryMinus);
     MEM_CHECK(mainUnaryMinusNode);
-    mainUnaryMinusNode->left = diff_(nodeToDiff->left, mainUnaryMinusNode);
+    mainUnaryMinusNode->left = diff_(nodeToDiff->left);
     return mainUnaryMinusNode;
 }
 
-Node* diff_mul(Node* nodeToDiff, Node* prevNode){
+Node* diff_mul(Node* nodeToDiff){
     assert(nodeToDiff->type == Mul);
     // main
-    Node* mainSumNode = nodeInitTypePrev(Sum, prevNode);
+    Node* mainSumNode = nodeInitType(Sum);
     MEM_CHECK(mainSumNode);
 
-    Node* mulNodeLeft = nodeInitTypePrev(Mul, mainSumNode);
+    Node* mulNodeLeft = nodeInitType(Mul);
     MEM_CHECK(mulNodeLeft);
     mainSumNode->left = mulNodeLeft;
-    mulNodeLeft->left = diff_(nodeToDiff->left, mulNodeLeft);
-    mulNodeLeft->right = nodeCopyPrev(nodeToDiff->right, mulNodeLeft);
+    mulNodeLeft->left = diff_(nodeToDiff->left);
+    mulNodeLeft->right = nodeCopy(nodeToDiff->right);
 
-    Node* mulNodeRight = nodeInitTypePrev(Mul, mainSumNode);
+    Node* mulNodeRight = nodeInitType(Mul);
     MEM_CHECK(mulNodeRight);
     mainSumNode->right = mulNodeRight;
-    mulNodeRight->left = nodeCopyPrev(nodeToDiff->left, mulNodeRight);
-    mulNodeRight->right = diff_(nodeToDiff->right, mulNodeRight);
+    mulNodeRight->left = nodeCopy(nodeToDiff->left);
+    mulNodeRight->right = diff_(nodeToDiff->right);
 
     return mainSumNode;
 }
 
-Node* diff_div(Node* nodeToDiff, Node* prevNode){
+Node* diff_div(Node* nodeToDiff){
     assert(nodeToDiff->type == Div);
     // main
-    Node* mainDivNode = nodeInitTypePrev(Div, prevNode);
+    Node* mainDivNode = nodeInitType(Div);
     MEM_CHECK(mainDivNode);
 
-    Node* subNodeLeft = nodeInitTypePrev(Sub, mainDivNode);
+    Node* subNodeLeft = nodeInitType(Sub);
     MEM_CHECK(subNodeLeft);
     mainDivNode->left = subNodeLeft;
 
-    Node* mulNodeLeft = nodeInitTypePrev(Mul, subNodeLeft);
+    Node* mulNodeLeft = nodeInitType(Mul);
     MEM_CHECK(mulNodeLeft);
     subNodeLeft->left = mulNodeLeft;
-    mulNodeLeft->left = diff_(nodeToDiff->left, mulNodeLeft);
-    mulNodeLeft->right = nodeCopyPrev(nodeToDiff->right, mulNodeLeft);
+    mulNodeLeft->left = diff_(nodeToDiff->left);
+    mulNodeLeft->right = nodeCopy(nodeToDiff->right);
 
-    Node* mulNodeRight = nodeInitTypePrev(Mul, subNodeLeft);
+    Node* mulNodeRight = nodeInitType(Mul);
     MEM_CHECK(mulNodeRight);
     subNodeLeft->right = mulNodeRight;
-    mulNodeRight->left = nodeCopyPrev(nodeToDiff->left, mulNodeRight);
-    mulNodeRight->right = diff_(nodeToDiff->right, mulNodeRight);
+    mulNodeRight->left = nodeCopy(nodeToDiff->left);
+    mulNodeRight->right = diff_(nodeToDiff->right);
 
-    Node* pwrNodeRight = nodeInitTypePrev(Pwr, mainDivNode);
+    Node* pwrNodeRight = nodeInitType(Pwr);
     MEM_CHECK(pwrNodeRight);
     mainDivNode->right = pwrNodeRight;
-    pwrNodeRight->left = nodeCopyPrev(nodeToDiff->right, pwrNodeRight);
-    pwrNodeRight->right = initNumNode(2, pwrNodeRight);
+    pwrNodeRight->left = nodeCopy(nodeToDiff->right);
+    pwrNodeRight->right = initNumNode(2);
 
     return mainDivNode;
 }
 
-Node* diff_pwr(Node* nodeToDiff, Node* prevNode){
+Node* diff_pwr(Node* nodeToDiff){
     assert(nodeToDiff->type == Pwr);
     // main
-    Node* mainMulNode = nodeInitTypePrev(Mul, prevNode);
+    Node* mainMulNode = nodeInitType(Mul);
     MEM_CHECK(mainMulNode);
     // main -> left
-    mainMulNode->left = nodeCopyPrev(nodeToDiff, mainMulNode);
+    mainMulNode->left = nodeCopy(nodeToDiff);
     // main -> right
-    Node* sumNodeRight = nodeInitTypePrev(Sum, mainMulNode);
+    Node* sumNodeRight = nodeInitType(Sum);
     MEM_CHECK(sumNodeRight);
     mainMulNode->right = sumNodeRight;
     // main -> right -> left
-    Node* mulNodeLeft = nodeInitTypePrev(Mul, sumNodeRight);
+    Node* mulNodeLeft = nodeInitType(Mul);
     MEM_CHECK(mulNodeLeft);
     sumNodeRight->left = mulNodeLeft;
     // main -> right -> left -> right
-    mulNodeLeft->right = diff_(nodeToDiff->left, mulNodeLeft);
+    mulNodeLeft->right = diff_(nodeToDiff->left);
     // main -> right -> left -> left
-    Node* divNodeLeft = nodeInitTypePrev(Div, mulNodeLeft);
+    Node* divNodeLeft = nodeInitType(Div);
     MEM_CHECK(divNodeLeft);
     mulNodeLeft->left = divNodeLeft;
-    divNodeLeft->left = nodeCopyPrev(nodeToDiff->right, divNodeLeft);
-    divNodeLeft->right = nodeCopyPrev(nodeToDiff->left, divNodeLeft);
+    divNodeLeft->left = nodeCopy(nodeToDiff->right);
+    divNodeLeft->right = nodeCopy(nodeToDiff->left);
     // main -> right -> right
-    Node* mulNodeRight = nodeInitTypePrev(Mul, sumNodeRight);
+    Node* mulNodeRight = nodeInitType(Mul);
     MEM_CHECK(mulNodeRight);
     sumNodeRight->right = mulNodeRight;
     // main -> right -> right -> left
-    mulNodeRight->left = diff_(nodeToDiff->right, mulNodeRight);
+    mulNodeRight->left = diff_(nodeToDiff->right);
     // main -> right -> right -> right
-    Node* lnNodeRight = nodeInitTypePrev(Ln, mulNodeRight);
+    Node* lnNodeRight = nodeInitType(Ln);
     MEM_CHECK(lnNodeRight);
     mulNodeRight->right = lnNodeRight;
-    lnNodeRight->left = nodeCopyPrev(nodeToDiff->left, lnNodeRight);
+    lnNodeRight->left = nodeCopy(nodeToDiff->left);
 
     return mainMulNode;
 }
 
-Node* diff_sin(Node* nodeToDiff, Node* prevNode){
+Node* diff_sin(Node* nodeToDiff){
     assert(nodeToDiff->type == Sin);
 
     // main
-    Node* mainMulNode = nodeInitTypePrev(Mul, prevNode);
+    Node* mainMulNode = nodeInitType(Mul);
     MEM_CHECK(mainMulNode);
     // main -> left
-    Node* cosNodeLeft = nodeInitTypePrev(Cos, mainMulNode);
+    Node* cosNodeLeft = nodeInitType(Cos);
     MEM_CHECK(cosNodeLeft);
     mainMulNode->left = cosNodeLeft;
     // main -> left -> left (un)
-    cosNodeLeft->left = nodeCopyPrev(nodeToDiff->left, cosNodeLeft);
+    cosNodeLeft->left = nodeCopy(nodeToDiff->left);
     // main -> right
-    mainMulNode->right = diff_(nodeToDiff->left, mainMulNode);
+    mainMulNode->right = diff_(nodeToDiff->left);
 
     return mainMulNode;
 }
 
-Node* diff_cos(Node* nodeToDiff, Node* prevNode){
+Node* diff_cos(Node* nodeToDiff){
     assert(nodeToDiff->type == Cos);
 
     // main
-    Node* mainUnaryMinusNode = nodeInitTypePrev(UnaryMinus, prevNode);
+    Node* mainUnaryMinusNode = nodeInitType(UnaryMinus);
     MEM_CHECK(mainUnaryMinusNode);
     // main -> left (un)
-    Node* mulNode = nodeInitTypePrev(Mul, mainUnaryMinusNode);
+    Node* mulNode = nodeInitType(Mul);
     MEM_CHECK(mulNode);
     mainUnaryMinusNode->left = mulNode;
     // main -> left -> left
-    Node* sinNodeLeft = nodeInitTypePrev(Sin, mulNode);
+    Node* sinNodeLeft = nodeInitType(Sin);
     MEM_CHECK(sinNodeLeft);
     mulNode->left = sinNodeLeft;
     // main -> left -> left -> left (un)
-    sinNodeLeft->left = nodeCopyPrev(nodeToDiff->left, sinNodeLeft);
+    sinNodeLeft->left = nodeCopy(nodeToDiff->left);
     // main -> left -> right
-    mulNode->right = diff_(nodeToDiff->left, mulNode);
+    mulNode->right = diff_(nodeToDiff->left);
 
     return mainUnaryMinusNode;
 }
 
-Node* diff_ln(Node* nodeToDiff, Node* prevNode){
+Node* diff_ln(Node* nodeToDiff){
     assert(nodeToDiff->type == Ln);
 
     // main
-    Node* mainDivNode = nodeInitTypePrev(Div, prevNode);
+    Node* mainDivNode = nodeInitType(Div);
     MEM_CHECK(mainDivNode);
     // main -> left
-    mainDivNode->left = diff_(nodeToDiff->left, mainDivNode);
+    mainDivNode->left = diff_(nodeToDiff->left);
     // main -> right
-    mainDivNode->right = nodeCopyPrev(nodeToDiff->left, mainDivNode);
+    mainDivNode->right = nodeCopy(nodeToDiff->left);
 
     return mainDivNode;
 }
 
-Node* diff_var(Node* nodeToDiff, Node* prevNode){
+Node* diff_var(Node* nodeToDiff){
     assert(nodeToDiff->type == Var);
 
     if(strCompareIntInt(nodeToDiff->ptrValue, diffVar))
-        return initNumNode(1, prevNode);
+        return initNumNode(1);
     else
-        return initNumNode(0, prevNode);
+        return initNumNode(0);
 }
 
-Node* diff_num(Node* nodeToDiff, Node* prevNode){
+Node* diff_num(Node* nodeToDiff){
     assert(nodeToDiff->type == Num);
 
-    return initNumNode(0, prevNode);
+    return initNumNode(0);
 }
 
 #pragma clang diagnostic pop

@@ -13,7 +13,6 @@ Node* nodeInit(){
         printf("nodeInit: memory alloc error\n");
     node->type = Empty;
     node->ptrValue = NULL;
-    node->prev = NULL;
     node->left = NULL;
     node->right = NULL;
     return node;
@@ -49,14 +48,6 @@ Node* nodeInitType(unsigned type){
     return node;
 }
 
-/// инициализирует узел данного типа, при необходимости выделяет память под ptrValue
-Node* nodeInitTypePrev(unsigned type, Node* prevNode){
-
-    Node* node = nodeInitType(type);
-    node->prev = prevNode;
-    return node;
-}
-
 /// удаляет один узел дерева
 void nodeFree(Node* node){
 
@@ -80,15 +71,6 @@ void nodeClear(Node* node){
         nodeClearRec(node);
 }
 
-/// nodeCopy, но с возможностью связать полученное дерево с prevNode
-Node* nodeCopyPrev(Node* node, Node* prevNode){
-    assert(node != NULL);
-
-    Node* copy = nodeCopy(node);
-    copy->prev = prevNode;
-    return copy;
-}
-
 void nodeValueCopy(Node* fromNode, Node* toNode){
     assert(fromNode != NULL && toNode != NULL);
 
@@ -108,7 +90,7 @@ void nodeValueCopy(Node* fromNode, Node* toNode){
 Node* nodeCopy(Node* node) {
     assert(node != NULL);
 
-    Node* copy = nodeInitTypePrev(node->type, node->prev);
+    Node* copy = nodeInitType(node->type);
 
     nodeValueCopy(node, copy);
 
@@ -119,8 +101,8 @@ Node* nodeCopy(Node* node) {
     return copy;
 }
 
-Node* initNumNode(double value, Node* prevNode){
-    Node* numNode = nodeInitTypePrev(Num, prevNode);
+Node* initNumNode(double value){
+    Node* numNode = nodeInitType(Num);
     if(numNode != NULL)
         *(double*)numNode->ptrValue = value;
     return numNode;

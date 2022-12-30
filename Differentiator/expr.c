@@ -27,7 +27,6 @@ MEM_CHECK(unaryNode);        \
 unaryNode->type = typeNode;  \
 Node* argument = nextFunc(line, ptrPos);\
 unaryNode->left = argument;  \
-argument->prev = unaryNode;  \
 return unaryNode;} while(0)
 
 #define RET_BINARY_NODE(currFunc, typeNode, nextFunc) do{ \
@@ -35,10 +34,8 @@ Node* binaryNode = nodeInit(); \
 MEM_CHECK(binaryNode);         \
 binaryNode->type = typeNode;   \
 binaryNode->left = firstArg;   \
-firstArg->prev = binaryNode;   \
 Node* secondArg = nextFunc(line, ptrPos);\
 binaryNode->right = secondArg; \
-secondArg->prev = binaryNode;  \
 return currFunc(line, ptrPos, binaryNode);\
 } while(0)
 

@@ -3,6 +3,6 @@
 
 #include "../Node/Node.h"
 
-Node* opt(Node* diffNode);
+Node * opt(Node* diffNode);
 
 #endif //DIFFERENTIATOR_NEW_OPT_H

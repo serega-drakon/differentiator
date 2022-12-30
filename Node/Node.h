@@ -29,19 +29,16 @@ enum Types_{
 typedef struct Node_ {
     unsigned type;
     void* ptrValue;
-    struct Node_* prev;
     struct Node_* left;
     struct Node_* right;
 } Node;
 
 Node* nodeInit();
-Node* nodeInitTypePrev(unsigned type, Node* prevNode);
 Node* nodeInitType(unsigned type);
-Node* initNumNode(double value, Node* prevNode);
+Node* initNumNode(double value);
 void nodeFree(Node* node);
 void nodeClear(Node* node);
 void nodeSaveToFile(FILE* output, Node* node);
 Node* nodeCopy(Node *node);
-Node* nodeCopyPrev(Node* node, Node* prevNode);
 
 #endif //DIFFERENTIATOR_NODE_H

@@ -1,6 +1,5 @@
 #include "InputOutput.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 int strCompareIntChar(const int a[], const char b[]){
 
