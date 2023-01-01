@@ -51,8 +51,11 @@ Node* nodeInitType(unsigned type){
 /// удаляет один узел дерева
 void nodeFree(Node* node){
 
+    if(node != NULL){
+
     free(node->ptrValue);
     free(node);
+    }
 }
 
 void nodeClearRec(Node* node){
@@ -106,6 +109,44 @@ Node* initNumNode(double value){
     if(numNode != NULL)
         *(double*)numNode->ptrValue = value;
     return numNode;
+}
+
+double nPushNum(Node* numNode, double value){
+    if(numNode->type == Num)
+        return *(double*)numNode->ptrValue = value;
+    else {
+        printf("nPushNum: error not Num node");
+        return 0;
+    }
+}
+
+double nGetNum(Node* numNode){
+    if(numNode->type == Num)
+        return *(double*)numNode->ptrValue;
+    else {
+        printf("nGetNum: error not Num node");
+        return 0;
+    }
+}
+
+int nPushVar(Node* varNode, int value, unsigned x){
+
+    if(varNode == NULL){
+        printf("nPushVar: error varNode = NULL\n");
+        return 0;
+    }
+    if(varNode->ptrValue == NULL){
+        printf("nPushVar: error varNode->ptrValue = NULL\n");
+        return 0;
+    }
+
+    if(x < MAXVAR) {
+        return ((int*)varNode->ptrValue)[x] = value;
+    }
+    else {
+        printf("nPushVar: x is over than MAXVAR\n");
+        return 0;
+    }
 }
 
 void nodePushMessage(FILE* output, Node* node){

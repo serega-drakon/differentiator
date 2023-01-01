@@ -36,6 +36,9 @@ typedef struct Node_ {
 Node* nodeInit();
 Node* nodeInitType(unsigned type);
 Node* initNumNode(double value);
+double nGetNum(Node* numNode);
+double nPushNum(Node* numNode, double value);
+int nPushVar(Node* varNode, int value, unsigned x);
 void nodeFree(Node* node);
 void nodeClear(Node* node);
 void nodeSaveToFile(FILE* output, Node* node);

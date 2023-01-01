@@ -17,22 +17,19 @@
 
 #define RET_ERROR_NODE    do{   \
 printf("expr: error by the sybmol \"%c\" at pos %d\n", line[*ptrPos], *ptrPos);\
-Node* errorNode = nodeInit();   \
-errorNode->type = Error;        \
+Node* errorNode = nodeInitType(Error);   \
 return errorNode;} while(0)
 
 #define RET_UNARY_NODE(typeNode, nextFunc) do{\
-Node* unaryNode = nodeInit();\
+Node* unaryNode = nodeInitType(typeNode);\
 MEM_CHECK(unaryNode);        \
-unaryNode->type = typeNode;  \
 Node* argument = nextFunc(line, ptrPos);\
 unaryNode->left = argument;  \
 return unaryNode;} while(0)
 
 #define RET_BINARY_NODE(currFunc, typeNode, nextFunc) do{ \
-Node* binaryNode = nodeInit(); \
+Node* binaryNode = nodeInitType(typeNode); \
 MEM_CHECK(binaryNode);         \
-binaryNode->type = typeNode;   \
 binaryNode->left = firstArg;   \
 Node* secondArg = nextFunc(line, ptrPos);\
 binaryNode->right = secondArg; \
@@ -67,7 +64,7 @@ int exprLineCheck(int cleared[], const int source[]){
     int countOfDisclosed = 0;
     int j = 0;
 
-    for(unsigned i = 0; source[i] != '\0'; i++){
+    for(unsigned i = 0; source[i] != '\0' && countOfDisclosed >= 0; i++){
         if(source[i] == '(')
             countOfDisclosed++;
         else if(source[i] == ')')
@@ -197,7 +194,7 @@ Node* expr_brace(const int line[], unsigned *ptrPos);
 Node* expr_num(const int line[], unsigned *ptrPos);
 Node* expr_var(const int line[], unsigned *ptrPos);
 
-Node* expr_other(const int line[], unsigned *ptrPos) {  //FIXME: simplify
+Node* expr_other(const int line[], unsigned *ptrPos) {
 
     Node* result = NULL;
 
@@ -250,7 +247,7 @@ Node* expr_num(const int line[], unsigned *ptrPos){
 
     if(point < 2 && isValidAfterVal(line[*ptrPos])){
         op[i] = '\0';
-        *(double*)numNode->ptrValue = strtod(op, NULL);
+        nPushNum(numNode, strtod(op, NULL));
         return numNode;
     }
     nodeFree(numNode);
@@ -265,9 +262,9 @@ Node* expr_var(const int line[], unsigned *ptrPos){
     unsigned i = 0;
 
     do
-        ((int*)varNode->ptrValue)[i++] = line[(*ptrPos)++];
+        nPushVar(varNode, line[(*ptrPos)++], i++);
     while((ISCHAR || ISDIGIT) && (i < MAXVAR - 1));
-    ((int*)varNode->ptrValue)[i] = '\0';
+    nPushVar(varNode, '\0', i);
 
     if(isValidAfterVal(line[*ptrPos]))
         return varNode;

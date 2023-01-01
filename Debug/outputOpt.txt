@@ -1,0 +1,4 @@
+digraph Cock{
+node[color=blue,fontsize=14, style=filled,fillcolor=lightgrey]
+105553136144992 [label = "1245"]
+}

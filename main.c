@@ -12,6 +12,7 @@ int main() {
     int input [ MAXLEN ];
     Node* exprRes = NULL;
     Node* diffRes = NULL;
+    Node* optRes = NULL;
     FILE* outputExpr = fopen("../Debug/outputExpr.txt", "w");
     FILE* outputDiff = fopen("../Debug/outputDiff.txt", "w");
     FILE* outputOpt = fopen("../Debug/outputOpt.txt", "w");
@@ -35,10 +36,16 @@ int main() {
         else
             printf("main: error NULL diffRes\n");
 
+        optRes = opt(exprRes); //debug!
+        if(optRes != NULL)
+            nodeSaveToFile(outputOpt, optRes);
+        else
+            printf("main: error NULL optRes\n");
     }
 
     nodeClear(exprRes);
     nodeClear(diffRes);
+    nodeClear(optRes);
     fclose(outputExpr);
     fclose(outputDiff);
     fclose(outputOpt);
