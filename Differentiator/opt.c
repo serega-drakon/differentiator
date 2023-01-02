@@ -364,6 +364,8 @@ Node* opt_mul_1(Node* nodeToOpt){
         return opt_mul_2(nodeToOpt);
 }
 
+Node* opt_mul_3(Node* nodeToOpt);
+
 Node* opt_mul_2(Node* nodeToOpt){
 
     Node* opt_mul_2_RNum(Node* nodeToOpt);
@@ -374,7 +376,7 @@ Node* opt_mul_2(Node* nodeToOpt){
     else if(nodeToOpt->left->type == Num)
         return opt_mul_2_LNum(nodeToOpt);
     else
-        return nodeToOpt;
+        return opt_mul_3(nodeToOpt);
 }
 
 Node* opt_mul_2_RNum(Node* nodeToOpt){
@@ -412,7 +414,7 @@ Node* opt_mul_2_RNum(Node* nodeToOpt){
         return opt_(mainUMinusNode);
     }
 
-    return nodeToOpt;
+    return opt_mul_3(nodeToOpt);
 }
 
 Node* opt_mul_2_LNum(Node* nodeToOpt) {
@@ -448,7 +450,23 @@ Node* opt_mul_2_LNum(Node* nodeToOpt) {
         return opt_(mainUMinusNode);
     }
 
-    return nodeToOpt;
+    return opt_mul_3(nodeToOpt);
+}
+
+Node* opt_mul_3(Node* nodeToOpt){
+
+    if(nodeToOpt->right->type == Mul){
+
+        Node* mainMulNode = nodeToOpt->right;
+        Node* mulNode = nodeToOpt;
+
+        mulNode->right = mainMulNode->left;
+        mainMulNode->left = mulNode;
+
+        return opt_(mainMulNode);
+    }
+    else
+        return nodeToOpt;
 }
 
 Node* opt_div(Node* nodeToOpt) {
