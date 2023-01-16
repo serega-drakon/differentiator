@@ -149,6 +149,26 @@ int nPushVar(Node* varNode, int value, unsigned x){
     }
 }
 
+int nGetVar(Node* varNode, unsigned x){
+
+    if(varNode == NULL){
+        printf("nGetVar: error varNode = NULL\n");
+        return 0;
+    }
+    if(varNode->ptrValue == NULL){
+        printf("nGetVar: error varNode->ptrValue = NULL\n");
+        return 0;
+    }
+
+    if(x < MAXVAR) {
+        return ((int*)varNode->ptrValue)[x];
+    }
+    else {
+        printf("nGetVar: x is over than MAXVAR\n");
+        return 0;
+    }
+}
+
 void nodePushMessage(FILE* output, Node* node){
     assert(output != NULL && node != NULL);
 
@@ -157,10 +177,10 @@ void nodePushMessage(FILE* output, Node* node){
         case Empty:
             fprintf(output, "*Empty*");
             break;
-        case Sum: case UnaryPlus:
+        case Sum: case UPlus:
             fprintf(output, "+");
             break;
-        case Sub: case UnaryMinus:
+        case Sub: case UMinus:
             fprintf(output, "-");
             break;
         case Mul:

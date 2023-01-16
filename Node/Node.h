@@ -10,20 +10,20 @@
 #define MAXVAR 100
 
 enum Types_{
+    Error,
     Empty,
+    Var,    ///< value -> str
+    Num,    ///< value -> int / double
     Sum,
     Sub,
-    UnaryPlus,
-    UnaryMinus,
+    UPlus,
+    UMinus,
     Mul,
     Div,
     Pwr,
     Sin,
     Cos,
     Ln,
-    Var,    ///< value -> str
-    Num,    ///< value -> int / double
-    Error   ///< value -> str
 };
 
 typedef struct Node_ {
@@ -39,6 +39,7 @@ Node* initNumNode(double value);
 double nGetNum(Node* numNode);
 double nPushNum(Node* numNode, double value);
 int nPushVar(Node* varNode, int value, unsigned x);
+int nGetVar(Node* varNode, unsigned x);
 void nodeFree(Node* node);
 void nodeClear(Node* node);
 void nodeSaveToFile(FILE* output, Node* node);

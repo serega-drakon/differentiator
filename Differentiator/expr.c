@@ -123,11 +123,11 @@ Node* expr_unaryPlusMinus(const int line[], unsigned *ptrPos){
 
     if(REQUIRE('+')){
         (*ptrPos)++;
-        RET_UNARY_NODE(UnaryPlus, expr_mul_div);
+        RET_UNARY_NODE(UPlus, expr_mul_div);
     }
     else if(REQUIRE('-')){
         (*ptrPos)++;
-        RET_UNARY_NODE(UnaryMinus, expr_mul_div);
+        RET_UNARY_NODE(UMinus, expr_mul_div);
     }
     else
         return expr_mul_div(line, ptrPos);
@@ -171,26 +171,27 @@ Node* expr_pwr_(const int line[], unsigned *ptrPos, Node* firstArg){
         return firstArg;
 }
 
+Node* expr_brace(const int line[], unsigned *ptrPos);
+
 Node* expr_sin_cos_ln(const int line[], unsigned *ptrPos){
 
     if(strCompareIntChar(&line[*ptrPos], "sin(")){
         (*ptrPos) += 3;
-        RET_UNARY_NODE(Sin, expr_other);
+        RET_UNARY_NODE(Sin, expr_brace);
     }
     else if(strCompareIntChar(&line[*ptrPos], "cos(")){
         (*ptrPos) += 3;
-        RET_UNARY_NODE(Cos, expr_other);
+        RET_UNARY_NODE(Cos, expr_brace);
     }
     else if (strCompareIntChar(&line[*ptrPos], "ln(")){
         (*ptrPos) += 2;
-        RET_UNARY_NODE(Ln, expr_other);
+        RET_UNARY_NODE(Ln, expr_brace);
     } else
         return expr_other(line, ptrPos);
 }
 
 #define MAXOP 100
 
-Node* expr_brace(const int line[], unsigned *ptrPos);
 Node* expr_num(const int line[], unsigned *ptrPos);
 Node* expr_var(const int line[], unsigned *ptrPos);
 

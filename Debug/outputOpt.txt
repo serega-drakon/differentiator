@@ -1,8 +1,0 @@
-digraph Cock{
-node[color=blue,fontsize=14, style=filled,fillcolor=lightgrey]
-105553173190176 [label = "*"]
-105553173190176 -> 105553173190240
-105553173190176 -> 105553173190304
-105553173190240 [label = "6"]
-105553173190304 [label = "x"]
-}

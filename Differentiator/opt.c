@@ -46,8 +46,8 @@ Node * opt(Node* diffNode){
 
 Node* opt_sum(Node* nodeToOpt);
 Node* opt_sub(Node* nodeToOpt);
-Node* opt_unaryPlus(Node* nodeToOpt);
-Node* opt_unaryMinus(Node* nodeToOpt);
+Node* opt_UPlus(Node* nodeToOpt);
+Node* opt_UMinus(Node* nodeToOpt);
 Node* opt_mul(Node* nodeToOpt);
 Node* opt_div(Node* nodeToOpt);
 Node* opt_pwr(Node* nodeToOpt);
@@ -64,10 +64,10 @@ Node* opt_(Node* nodeToOpt){
             return opt_sum(nodeToOpt);
         case Sub:
             return opt_sub(nodeToOpt);
-        case UnaryPlus:
-            return opt_unaryPlus(nodeToOpt);
-        case UnaryMinus:
-            return opt_unaryMinus(nodeToOpt);
+        case UPlus:
+            return opt_UPlus(nodeToOpt);
+        case UMinus:
+            return opt_UMinus(nodeToOpt);
         case Mul:
             return opt_mul(nodeToOpt);
         case Div:
@@ -170,7 +170,7 @@ Node* opt_sum_3(Node* nodeToOpt){
 // раскрытие скобок с унарным минусом
 Node* opt_sum_4(Node* nodeToOpt){
 
-    if(nodeToOpt->right->type == UnaryMinus){
+    if(nodeToOpt->right->type == UMinus){
 
         Node* mainSubNode = nodeToOpt;
         mainSubNode->type = Sub;
@@ -238,7 +238,7 @@ Node* opt_sub_2(Node* nodeToOpt){
         nodeFree(nodeToOpt->left);
         nodeFree(nodeToOpt);
 
-        Node* mainUMinusNode = nodeInitType(UnaryMinus);
+        Node* mainUMinusNode = nodeInitType(UMinus);
         mainUMinusNode->left = node;
 
         return opt_(mainUMinusNode);
@@ -282,7 +282,7 @@ Node* opt_sub_3(Node* nodeToOpt){
 
 Node* opt_sub_4(Node* nodeToOpt){
 
-    if(nodeToOpt->right->type == UnaryMinus){
+    if(nodeToOpt->right->type == UMinus){
 
         Node* mainSumNode = nodeToOpt;
         mainSumNode->type = Sum;
@@ -299,39 +299,35 @@ Node* opt_sub_4(Node* nodeToOpt){
 }
 
 // унарный плюс бесполезен, его я просто убираю
-Node* opt_unaryPlus(Node* nodeToOpt) {
+Node* opt_UPlus(Node* nodeToOpt) {
 
-    DEBUG_CHECK_U(UnaryPlus);
+    DEBUG_CHECK_U(UPlus);
 
     return opt_(nodeToOpt->left);
 }
 
-Node* opt_unaryMinus(Node* nodeToOpt) {
+Node* opt_UMinus(Node* nodeToOpt) {
 
-    DEBUG_CHECK_U(UnaryMinus);
+    DEBUG_CHECK_U(UMinus);
 
     OPT_U_TREE;
 
-    Node* opt_unaryMinus_1(Node* nodeToOpt);
+    Node* opt_UMinus_1(Node* nodeToOpt);
 
-    return opt_unaryMinus_1(nodeToOpt);
+    return opt_UMinus_1(nodeToOpt);
 }
 
-Node* opt_unaryMinus_1(Node* nodeToOpt){
+Node* opt_UMinus_1(Node* nodeToOpt) {
 
-    if(nodeToOpt->left->type == Num){
-
-        Node* mainNumNode = nodeToOpt->left;
-
+    if(nodeToOpt->left->type == Num && nGetNum(nodeToOpt->left) == 0){
+        Node* numNode = nodeToOpt->left;
         nodeFree(nodeToOpt);
-
-        nPushNum(mainNumNode, - nGetNum(mainNumNode));
-
-        return opt_(mainNumNode);
+        return numNode;
     }
     else
         return nodeToOpt;
 }
+
 
 Node* opt_mul(Node* nodeToOpt) { //var * 1 - 1 0
 
@@ -404,7 +400,7 @@ Node* opt_mul_2_RNum(Node* nodeToOpt){
     }
     else if(nodeValue == - 1.0){
 
-        Node* mainUMinusNode = nodeInitType(UnaryMinus);
+        Node* mainUMinusNode = nodeInitType(UMinus);
 
         mainUMinusNode->left = nodeToOpt->left;
 
@@ -440,7 +436,7 @@ Node* opt_mul_2_LNum(Node* nodeToOpt) {
         return opt_(mainVarNode);
     } else if (nodeValue == -1.0) {
 
-        Node *mainUMinusNode = nodeInitType(UnaryMinus);
+        Node *mainUMinusNode = nodeInitType(UMinus);
 
         mainUMinusNode->left = nodeToOpt->right;
 

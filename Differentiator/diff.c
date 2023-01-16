@@ -56,9 +56,9 @@ Node* diff_(Node* nodeToDiff){
             return diff_sum(nodeToDiff);
         case Sub:
             return diff_sub(nodeToDiff);
-        case UnaryPlus:
+        case UPlus:
             return diff_unaryPlus(nodeToDiff);
-        case UnaryMinus:
+        case UMinus:
             return diff_unaryMinus(nodeToDiff);
         case Mul:
             return diff_mul(nodeToDiff);
@@ -107,10 +107,10 @@ Node* diff_sub(Node* nodeToDiff){
 
 Node* diff_unaryPlus(Node* nodeToDiff){
 
-    DEBUG_CHECK_U(UnaryPlus);
+    DEBUG_CHECK_U(UPlus);
 
     // main
-    Node* mainUnaryPlusNode = nodeInitType(UnaryPlus);
+    Node* mainUnaryPlusNode = nodeInitType(UPlus);
     MEM_CHECK(mainUnaryPlusNode);
     mainUnaryPlusNode->left = diff_(nodeToDiff->left);
     return mainUnaryPlusNode;
@@ -118,10 +118,10 @@ Node* diff_unaryPlus(Node* nodeToDiff){
 
 Node* diff_unaryMinus(Node* nodeToDiff){
 
-    DEBUG_CHECK_U(UnaryMinus);
+    DEBUG_CHECK_U(UMinus);
 
     // main
-    Node* mainUnaryMinusNode = nodeInitType(UnaryMinus);
+    Node* mainUnaryMinusNode = nodeInitType(UMinus);
     MEM_CHECK(mainUnaryMinusNode);
     mainUnaryMinusNode->left = diff_(nodeToDiff->left);
     return mainUnaryMinusNode;
@@ -247,7 +247,7 @@ Node* diff_cos(Node* nodeToDiff){
     DEBUG_CHECK_U(Cos);
 
     // main
-    Node* mainUnaryMinusNode = nodeInitType(UnaryMinus);
+    Node* mainUnaryMinusNode = nodeInitType(UMinus);
     MEM_CHECK(mainUnaryMinusNode);
     // main -> left (un)
     Node* mulNode = nodeInitType(Mul);
