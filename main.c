@@ -9,17 +9,13 @@
 #include "Differentiator/opt.h"
 
 #define MAXLEN 300
-
+#define MAXCOUNT 50
 typedef struct mainStruct_ {
 
     Node* exprRes;
     Node* optExprRes;
-    Node* diffRes;
-    Node* optDiffRes;
     FILE* outputExpr;
     FILE* outputOptExpr;
-    FILE* outputDiff;
-    FILE* outputOptDiff;
     FILE* outputLatex;
 } mainStruct;
 
@@ -30,12 +26,8 @@ mainStruct* mainStructInit(){
         return NULL;
     mainStruct1->exprRes = NULL;
     mainStruct1->optExprRes = NULL;
-    mainStruct1->diffRes = NULL;
-    mainStruct1->optDiffRes = NULL;
     mainStruct1->outputExpr = fopen("../Debug/outputExpr.txt", "w");
     mainStruct1->outputOptExpr = fopen("../Debug/outputOptExpr.txt", "w");
-    mainStruct1->outputDiff = fopen("../Debug/outputDiff.txt", "w");
-    mainStruct1->outputOptDiff = fopen("../Debug/outputOptDiff.txt", "w");
     mainStruct1->outputLatex = fopen("../outputLatex.txt", "w");
     return mainStruct1;
 }
@@ -44,12 +36,8 @@ void mainStructFree(mainStruct* mainStruct1){
 
     nodeClear(mainStruct1->exprRes);
     nodeClear(mainStruct1->optExprRes);
-    nodeClear(mainStruct1->diffRes);
-    nodeClear(mainStruct1->optDiffRes);
     fclose(mainStruct1->outputExpr);
     fclose(mainStruct1->outputOptExpr);
-    fclose(mainStruct1->outputDiff);
-    fclose(mainStruct1->outputOptDiff);
     fclose(mainStruct1->outputLatex);
     free(mainStruct1);
 }
@@ -65,17 +53,6 @@ void mainDebugOutput(mainStruct* mainStruct1){
         nodeSaveToFile(mainStruct1->outputOptExpr, mainStruct1->optExprRes);
     else
         printf("mainDebugOutput: optExprRes is NULL\n");
-
-    if(mainStruct1->diffRes != NULL)
-        nodeSaveToFile(mainStruct1->outputDiff, mainStruct1->diffRes);
-    else
-        printf("mainDebugOutput: diffRes is NULL\n");
-
-    if(mainStruct1->optDiffRes != NULL)
-        nodeSaveToFile(mainStruct1->outputOptDiff, mainStruct1->optDiffRes);
-    else
-        printf("mainDebugOutput: optDiffRes is NULL\n");
-
 }
 
 void pasteFromFile(FILE* from, FILE* to){
@@ -86,7 +63,21 @@ void pasteFromFile(FILE* from, FILE* to){
         putc(c, to);
 }
 
-void mainLatex(mainStruct* mainStruct1){ //FIXME??
+void pasteString(FILE* to, const int str[]){
+    assert(to != NULL && str != NULL);
+
+    for(int i = 0; str[i] != '\0'; i++)
+        putc(str[i], to);
+}
+
+void mainDiff(mainStruct* mainStruct1, int var[][MAXVAR]) {
+
+    Node* exprNode = mainStruct1->optExprRes;
+    if(exprNode == NULL)
+        return;
+
+    Node* diffNode;
+    Node* optDiffNode;
 
     FILE* lateXFile = mainStruct1->outputLatex;
     if(lateXFile == NULL){
@@ -102,21 +93,68 @@ void mainLatex(mainStruct* mainStruct1){ //FIXME??
 
     pasteFromFile(textFile, lateXFile);
 
-    fprintf(lateXFile, "\\[");
+    fprintf(lateXFile, "Введена формула:\n");
+
+    fprintf(lateXFile, "\n\\[ f (");
+
     nodePrintLateX(lateXFile, mainStruct1->exprRes);
     fprintf(lateXFile, "\\]\n");
 
-    fprintf(lateXFile, "\\end{document}");
+    fprintf(lateXFile, "Оптимизация формулы:\n");
+
+    fprintf(lateXFile, "\n\\[");
+    nodePrintLateX(lateXFile, mainStruct1->optExprRes);
+    fprintf(lateXFile, "\\]\n");
+
+    fprintf(lateXFile, "Вывод полного дифференциала:\n");
+    if(var[0][0] != '\0') {
+        fprintf(lateXFile, "\n\\begin{multline*}\n \\,df (");
+
+        pasteString(lateXFile, var[0]);
+
+        for(int i = 1; i < MAXCOUNT && var[i][0] != '\0'; i++) {
+            fprintf(lateXFile, ", ");
+            pasteString(lateXFile, var[i]);
+        }
+
+        fprintf(lateXFile, ") = ");
+
+        diffNode = diff(exprNode, var[0]);
+        optDiffNode = opt(diffNode);
+
+        fprintf(lateXFile, "\\bigg(");
+        nodePrintLateX(lateXFile, optDiffNode);
+        fprintf(lateXFile, "\\bigg) \\,d(");
+        pasteString(lateXFile, var[0]);
+        fprintf(lateXFile, ")");
+
+        nodeClear(diffNode);
+        nodeClear(optDiffNode);
+
+        for(int i = 1; i < MAXCOUNT && var[i][0] != '\0'; i++){
+
+            diffNode = diff(exprNode, var[i]);
+            optDiffNode = opt(diffNode);
+
+            fprintf(lateXFile, "+ \\\\ \n+ \\bigg(");
+            nodePrintLateX(lateXFile, optDiffNode);
+            fprintf(lateXFile, "\\bigg) \\,d(");
+            pasteString(lateXFile, var[i]);
+            fprintf(lateXFile, ")");
+
+            nodeClear(diffNode);
+            nodeClear(optDiffNode);
+        }
+        fprintf(lateXFile, "\n\\end{multline*}\n");
+    }
+    else
+        fprintf(lateXFile, "Не введены переменные.\n");
+    fprintf(lateXFile, "\n\\end{document}\n");
 
     fclose(textFile);
 }
 
-void mainDiff(mainStruct* mainStruct1, int var[]){
-
-
-}
-
-int main() { //FIXME
+int main() {
 
     mainStruct* mainStruct1 = mainStructInit();
 
@@ -126,16 +164,18 @@ int main() { //FIXME
 
     if(getlineCMD(input, MAXLEN) > 0){
 
-        int var[ MAXVAR ];
-        printf("Введите переменную, по которой будем дифференцировать:\n");
-        getlineCMD(var, MAXVAR);
+        int var[ MAXCOUNT ][ MAXVAR ];
+        printf("Введите переменные, по которой будем дифференцировать (пустое поле для окончания ввода):\n");
+
+        for(int i = 0; i < MAXCOUNT && getlineCMD(var[i], MAXVAR) > 0; i++)
+            ;
 
         mainStruct1->exprRes = expr(input, MAXLEN);
         mainStruct1->optExprRes = opt(mainStruct1->exprRes);
-        mainStruct1->diffRes = diff(mainStruct1->optExprRes, var);
-        mainStruct1->optDiffRes = opt(mainStruct1->diffRes);
+
         mainDebugOutput(mainStruct1);
-        mainLatex(mainStruct1);
+
+        mainDiff(mainStruct1, var);
     }
 
     mainStructFree(mainStruct1);

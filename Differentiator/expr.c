@@ -77,16 +77,15 @@ int exprLineCheck(int cleared[], const int source[]){
     return countOfDisclosed;
 }
 
-Node* expr(const int inputLine[], unsigned sizeOfline){
+Node* expr(const int inputLine[], unsigned sizeOfLine){
 
-    int* line = malloc(sizeof(int) * sizeOfline);
+    int* line = malloc(sizeof(int) * sizeOfLine);
     MEM_CHECK(line);
     unsigned pos = 0;
     Node* result;
 
     if(!exprLineCheck(line, inputLine)) {
         result = expr_sum_sub(line, &pos);
-        free(line);
     }
     else {
         printf("syntax error: there are unclosed braces.\n");
@@ -94,6 +93,7 @@ Node* expr(const int inputLine[], unsigned sizeOfline){
         MEM_CHECK(result);
         result->type = Error;
     }
+    free(line);
     return result;
 }
 

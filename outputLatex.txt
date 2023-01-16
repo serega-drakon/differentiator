@@ -15,5 +15,17 @@
 \maketitle
 
 \section{Вывод}
-\[x + \frac{y}{x}\]
+Введена формула:
+
+\[\frac{y}{300} * x * (x + y) ^ { 0.5 } * \cos{(x + y)}\]
+Оптимизация формулы:
+
+\[\frac{y}{300} * x * (x + y) ^ { 0.5 } * \cos{(x + y)}\]
+Вывод полного дифференциала:
+
+\begin{multline*}
+ \,df (x, y) = \bigg((\frac{y}{300} * (x + y) ^ { 0.5 } + \frac{y}{300} * x * (x + y) ^ { 0.5 } * \frac{0.5}{x + y}) * \cos{(x + y)} + \frac{y}{300} * x * (x + y) ^ { 0.5 } * (- \sin{(x + y)})\bigg) \,d(x)+ \\ 
++ \bigg((0.00333333 * x * (x + y) ^ { 0.5 } + \frac{y}{300} * x * (x + y) ^ { 0.5 } * \frac{0.5}{x + y}) * \cos{(x + y)} + \frac{y}{300} * x * (x + y) ^ { 0.5 } * (- \sin{(x + y)})\bigg) \,d(y)
+\end{multline*}
+
 \end{document}

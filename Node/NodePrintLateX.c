@@ -185,18 +185,11 @@ void recPwr(FILE* file, Node* node){
             break;
     }
 
-    fprintf(file, " - ");
+    fprintf(file, " ^ ");
 
-    switch(node->right->type){
-
-        case Sum: case Sub: case UPlus: case UMinus:
-        case Mul: case Div: case Pwr:
-            recBraces(file, node->right);
-            break;
-        default:
-            recPrint(file, node->right);
-            break;
-    }
+    fprintf(file, "{ ");
+    recPrint(file, node->right);
+    fprintf(file, " }");
 }
 
 void recSin(FILE* file, Node* node){
