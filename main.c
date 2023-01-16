@@ -165,7 +165,7 @@ int main() {
     if(getlineCMD(input, MAXLEN) > 0){
 
         int var[ MAXCOUNT ][ MAXVAR ];
-        printf("Введите переменные, по которой будем дифференцировать (пустое поле для окончания ввода):\n");
+        printf("Введите переменные, по которым будем дифференцировать (пустое поле для окончания ввода):\n");
 
         for(int i = 0; i < MAXCOUNT && getlineCMD(var[i], MAXVAR) > 0; i++)
             ;
