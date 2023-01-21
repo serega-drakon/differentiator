@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <limits.h>
 #include "expr.h"
 #include "../InputOutput/InputOutput.h"
 
@@ -243,8 +242,7 @@ Node* expr_num(const int line[], unsigned *ptrPos){
         if(REQUIRE('.'))
             point++;
         op[i++] = (char) line[(*ptrPos)++];
-    } while((ISDIGIT || REQUIRE('.')) && point < 2 && i < MAXOP - 1
-            && line[*ptrPos] >= CHAR_MIN && line[*ptrPos] <= CHAR_MAX);
+    } while((ISDIGIT || REQUIRE('.')) && point < 2 && i < MAXOP - 1);
 
     if(point < 2 && isValidAfterVal(line[*ptrPos])){
         op[i] = '\0';

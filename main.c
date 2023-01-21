@@ -63,13 +63,6 @@ void pasteFromFile(FILE* from, FILE* to){
         putc(c, to);
 }
 
-void pasteString(FILE* to, const int str[]){
-    assert(to != NULL && str != NULL);
-
-    for(int i = 0; str[i] != '\0'; i++)
-        putc(str[i], to);
-}
-
 void mainDiff(mainStruct* mainStruct1, int var[][MAXVAR]) {
 
     Node* exprNode = mainStruct1->optExprRes;
@@ -110,11 +103,11 @@ void mainDiff(mainStruct* mainStruct1, int var[][MAXVAR]) {
     if(var[0][0] != '\0') {
         fprintf(lateXFile, "\n\\begin{multline*}\n \\,df (");
 
-        pasteString(lateXFile, var[0]);
+        fprintIntS(lateXFile, var[0]);
 
         for(int i = 1; i < MAXCOUNT && var[i][0] != '\0'; i++) {
             fprintf(lateXFile, ", ");
-            pasteString(lateXFile, var[i]);
+            fprintIntS(lateXFile, var[i]);
         }
 
         fprintf(lateXFile, ") = ");
@@ -125,7 +118,7 @@ void mainDiff(mainStruct* mainStruct1, int var[][MAXVAR]) {
         fprintf(lateXFile, "\\bigg(");
         nodePrintLateX(lateXFile, optDiffNode);
         fprintf(lateXFile, "\\bigg) \\,d(");
-        pasteString(lateXFile, var[0]);
+        fprintIntS(lateXFile, var[0]);
         fprintf(lateXFile, ")");
 
         nodeClear(diffNode);
@@ -139,7 +132,7 @@ void mainDiff(mainStruct* mainStruct1, int var[][MAXVAR]) {
             fprintf(lateXFile, "+ \\\\ \n+ \\bigg(");
             nodePrintLateX(lateXFile, optDiffNode);
             fprintf(lateXFile, "\\bigg) \\,d(");
-            pasteString(lateXFile, var[i]);
+            fprintIntS(lateXFile, var[i]);
             fprintf(lateXFile, ")");
 
             nodeClear(diffNode);
